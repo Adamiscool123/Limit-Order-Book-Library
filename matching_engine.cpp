@@ -1,8 +1,8 @@
-#include "varibles.h"
+#include "variables.h"
 #include "order_book.h"
 #include "matching_engine.h"
 
-void matching_engine(Global_Varibles& m){
+void matching_engine(Global_Variables& m){
         {
         // Lock the queue
         std::lock_guard<std::mutex> lock(m.market_mutex);
@@ -11,7 +11,7 @@ void matching_engine(Global_Varibles& m){
             return;
         }
 
-        Global_Varibles::Order trader = m.TradingQueue.front();
+        Order trader = m.TradingQueue.front();
         m.TradingQueue.pop();
         /*
             While loop that checks if the traders wants to sell and buy, 
@@ -76,12 +76,12 @@ void matching_engine(Global_Varibles& m){
         }
 
         // Sort the buy vector from largest to smallest (Descending)
-        std::sort(m.buy.begin(), m.buy.end(), [](const Global_Varibles::Order& a, const Global_Varibles::Order& b) {
+        std::sort(m.buy.begin(), m.buy.end(), [](const Order& a, const Order& b) {
             return a.price > b.price;
         });
 
         // Sort the sell vector from smallest to largest (Ascending)
-        std::sort(m.sell.begin(), m.sell.end(), [](const Global_Varibles::Order& a, const Global_Varibles::Order& b) {
+        std::sort(m.sell.begin(), m.sell.end(), [](const Order& a, const Order& b) {
             return a.price < b.price;
         });
 

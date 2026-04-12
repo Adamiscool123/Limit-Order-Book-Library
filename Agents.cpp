@@ -1,11 +1,11 @@
-#include "varibles.h"
+#include "variables.h"
 #include "Agents.h"
 #include "matching_engine.h"
 #include "order_book.h"
 
 using namespace std::chrono;
 
-void Agents::loop(Global_Varibles& m, int time, std::function<void(Global_Varibles& m)> trader){
+void Agents::loop(Global_Variables& m, int time, std::function<void(Global_Variables& m)> trader){
     while(true) {
         trader(m);
         matching_engine(m);
@@ -15,11 +15,11 @@ void Agents::loop(Global_Varibles& m, int time, std::function<void(Global_Varibl
 
 
 
-void market_maker::agent(Global_Varibles& m){
+void market_maker::agent(Global_Variables& m){
     int c = 0;
 
     while(c != 2){
-        Global_Varibles::Order trader;
+        Order trader;
 
         trader.agent_id = "Market Trader";
 
@@ -77,9 +77,9 @@ void market_maker::agent(Global_Varibles& m){
     }       
 }
 
-void noise_trader::agent(Global_Varibles& m){
+void noise_trader::agent(Global_Variables& m){
 
-    Global_Varibles::Order trader;
+    Order trader;
 
     trader.agent_id = "Noise Trader";
 
@@ -141,8 +141,8 @@ void noise_trader::agent(Global_Varibles& m){
     m.TradingQueue.push(trader);
 }
 
-void trend_follower::agent(Global_Varibles& m){
-    Global_Varibles::Order trader;
+void trend_follower::agent(Global_Variables& m){
+    Order trader;
 
     trader.agent_id = "Trend Trader";
 
@@ -215,8 +215,8 @@ void trend_follower::agent(Global_Varibles& m){
     m.TradingQueue.push(trader);                
 }
 
-void whale::agent(Global_Varibles& m){
-    Global_Varibles::Order trader;
+void whale::agent(Global_Variables& m){
+    Order trader;
 
     trader.agent_id = "Whale Trader";
 

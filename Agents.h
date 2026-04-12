@@ -1,33 +1,33 @@
 #ifndef AGENTS_H
 #define AGENTS_H
 
-#include "varibles.h"
+#include "variables.h"
 
 class Agent{
 public: 
     virtual ~Agent() = default;
 
-    virtual void agent(Global_Varibles& m) = 0;
+    virtual void agent(Global_Variables& m) = 0;
 };
 
 class market_maker : public Agent{
 public: 
-    void agent(Global_Varibles& m) override;
+    void agent(Global_Variables& m) override;
 };
 
 class noise_trader : public Agent{
 public: 
-    void agent(Global_Varibles& m) override;
+    void agent(Global_Variables& m) override;
 };
 
 class trend_follower : public Agent{
 public: 
-    void agent(Global_Varibles& m) override;
+    void agent(Global_Variables& m) override;
 };
 
 class whale : public Agent{
 public: 
-    void agent(Global_Varibles& m) override;
+    void agent(Global_Variables& m) override;
 };
 
 class Agents {
@@ -54,7 +54,7 @@ class Agents {
         */
 
         // Thread loop for trader
-        void loop(Global_Varibles& m, int time, std::function<void(Global_Varibles& m)> trader);
+        void loop(Global_Variables& m, int time, std::function<void(Global_Variables& m)> trader);
 };
 
 #endif

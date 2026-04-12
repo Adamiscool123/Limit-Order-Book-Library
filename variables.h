@@ -16,19 +16,20 @@
 #include <algorithm>
 #include <functional>
 
-class Global_Varibles{
+// Trader order
+struct Order{
+    std::string order_id;
+    std::string agent_id;
+    int side;
+    int price;
+    int shares;
+    int order_type;
+    long long timestamp;
+    bool traded = false;
+};
+
+class Global_Variables{
 public:
-    // Trader order
-    struct Order{
-        std::string order_id;
-        std::string agent_id;
-        int side;
-        int price;
-        int shares;
-        int order_type;
-        long long timestamp;
-        bool traded = false;
-    };
 
     struct order_complete{
         int price;
