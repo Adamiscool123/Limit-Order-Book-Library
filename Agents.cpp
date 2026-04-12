@@ -5,7 +5,7 @@
 
 using namespace std::chrono;
 
-void loop(Global_Variables& m, int time, std::function<void(Global_Variables& m)> trader){
+void Agent::loop(Global_Variables& m, int time, std::function<void(Global_Variables& m)> trader){
     while(true) {
         trader(m);
         matching_engine(m);

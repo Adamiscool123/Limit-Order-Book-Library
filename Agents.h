@@ -5,13 +5,16 @@
 
 class Agent{
 protected:
-    Global_Variables& market;
+    Global_Variables& variable;
 public: 
-    Agent(Global_Variables& m) : market(m) {}
+    Agent(Global_Variables& m) : variable(m) {}
 
     virtual ~Agent() = default;
 
     virtual void agent(Global_Variables& m) = 0;
+
+    // Thread loop for trader
+    void loop(Global_Variables& m, int time, std::function<void(Global_Variables& m)> trader);
 };
 
 class market_maker : public Agent{
@@ -41,8 +44,5 @@ public:
 
     void agent(Global_Variables& m) override;
 };
-
-// Thread loop for trader
-void loop(Global_Variables& m, int time, std::function<void(Global_Variables& m)> trader);
 
 #endif
