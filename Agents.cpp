@@ -20,10 +20,6 @@ void market_maker::execute_agent(){
     while(c != 2){
         Order trader;
 
-        trader.agent_id = "Market Trader";
-
-        trader.order_id = std::to_string(variable.counter);
-
         trader.order_type = 0;
 
         variable.counter++;
@@ -79,10 +75,6 @@ void market_maker::execute_agent(){
 void noise_trader::execute_agent(){
 
     Order trader;
-
-    trader.agent_id = "Noise Trader";
-
-    trader.order_id = std::to_string(variable.counter);
 
     trader.order_type = 0;
 
@@ -142,10 +134,6 @@ void noise_trader::execute_agent(){
 
 void trend_follower::execute_agent(){
     Order trader;
-
-    trader.agent_id = "Trend Trader";
-
-    trader.order_id = std::to_string(variable.counter);
 
     trader.order_type = 0;
 
@@ -216,10 +204,6 @@ void trend_follower::execute_agent(){
 
 void whale::execute_agent(){
     Order trader;
-
-    trader.agent_id = "Whale Trader";
-
-    trader.order_id = std::to_string(variable.counter);
 
     trader.order_type = 0;
 

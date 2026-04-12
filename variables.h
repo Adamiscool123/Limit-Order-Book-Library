@@ -15,12 +15,9 @@
 #include <stdio.h>
 #include <algorithm>
 #include <functional>
-#include <string>
 
 // Trader order
 struct Order{
-    std::string order_id;
-    std::string agent_id;
     int side;
     int price;
     int shares;
