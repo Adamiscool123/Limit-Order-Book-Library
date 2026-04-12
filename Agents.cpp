@@ -13,7 +13,7 @@ void Agent::loop(Global_Variables& m, int time, std::function<void(Global_Variab
     }    
 }
 
-void market_maker::agent(Global_Variables& m){
+void market_maker::agent(){
     int c = 0;
 
     while(c != 2){
@@ -21,40 +21,40 @@ void market_maker::agent(Global_Variables& m){
 
         trader.agent_id = "Market Trader";
 
-        trader.order_id = std::to_string(m.counter);
+        trader.order_id = std::to_string(variable.counter);
 
         trader.order_type = 0;
 
-        m.counter++;
+        variable.counter++;
 
         if(c == 0){
             trader.side = 0;
 
 
-            if(m.price_history.empty()){
-                trader.price = m.starting_price-1;
+            if(variable.price_history.empty()){
+                trader.price = variable.starting_price-1;
             }
             else{
-                trader.price = m.price_history.back()-1;
+                trader.price = variable.price_history.back()-1;
             }
 
             std::uniform_int_distribution<int> share(1, 10);
 
-            trader.shares = share(m.rng);
+            trader.shares = share(variable.rng);
         }
         else{
             trader.side = 1;
 
-            if(m.price_history.empty()){
-                trader.price = m.starting_price+1;
+            if(variable.price_history.empty()){
+                trader.price = variable.starting_price+1;
             }
             else{
-                trader.price = m.price_history.back()+1;
+                trader.price = variable.price_history.back()+1;
             }
 
             std::uniform_int_distribution<int> share(1, 10);
 
-            trader.shares = share(m.rng);
+            trader.shares = share(variable.rng);
         }
 
         // 1. Record start/end for Task A
@@ -67,61 +67,61 @@ void market_maker::agent(Global_Variables& m){
 
         trader.timestamp = time;
 
-        std::lock_guard<std::mutex> lock(m.market_mutex);
+        std::lock_guard<std::mutex> lock(variable.market_mutex);
 
-        m.TradingQueue.push(trader);   
+        variable.TradingQueue.push(trader);   
         
         c++;
     }       
 }
 
-void noise_trader::agent(Global_Variables& m){
+void noise_trader::agent(){
 
     Order trader;
 
     trader.agent_id = "Noise Trader";
 
-    trader.order_id = std::to_string(m.counter);
+    trader.order_id = std::to_string(variable.counter);
 
     trader.order_type = 0;
 
-    m.counter++;
+    variable.counter++;
 
     std::uniform_int_distribution<int> dist(0, 1);
 
-    int buy_or_sell = dist(m.rng);
+    int buy_or_sell = dist(variable.rng);
 
     trader.side = buy_or_sell;
 
     if(trader.side == 0){
 
-        if(m.price_history.empty()){
-            trader.price = m.starting_price-1;
+        if(variable.price_history.empty()){
+            trader.price = variable.starting_price-1;
         }
         else{
-            std::uniform_int_distribution<int> size(m.price_history.back()-(0.2*m.price_history.back()), m.price_history.back());
+            std::uniform_int_distribution<int> size(variable.price_history.back()-(0.2*variable.price_history.back()), variable.price_history.back());
 
-            trader.price = size(m.rng);
+            trader.price = size(variable.rng);
         }
 
         std::uniform_int_distribution<int> share(1, 10);
 
-        trader.shares = share(m.rng);
+        trader.shares = share(variable.rng);
     }
     else{
 
-        if(m.price_history.empty()){
-            trader.price = m.starting_price+1;
+        if(variable.price_history.empty()){
+            trader.price = variable.starting_price+1;
         }
         else{
-            std::uniform_int_distribution<int> size(m.price_history.back(), (m.price_history.back()+(0.2*m.price_history.back())));
+            std::uniform_int_distribution<int> size(variable.price_history.back(), (variable.price_history.back()+(0.2*variable.price_history.back())));
 
-            trader.price = size(m.rng);
+            trader.price = size(variable.rng);
         }
 
         std::uniform_int_distribution<int> share(1, 10);
 
-        trader.shares = share(m.rng);
+        trader.shares = share(variable.rng);
     }
 
     // 1. Record start/end for Task A
@@ -134,29 +134,29 @@ void noise_trader::agent(Global_Variables& m){
 
     trader.timestamp = time;
 
-    std::lock_guard<std::mutex> lock(m.market_mutex);
+    std::lock_guard<std::mutex> lock(variable.market_mutex);
 
-    m.TradingQueue.push(trader);
+    variable.TradingQueue.push(trader);
 }
 
-void trend_follower::agent(Global_Variables& m){
+void trend_follower::agent(){
     Order trader;
 
     trader.agent_id = "Trend Trader";
 
-    trader.order_id = std::to_string(m.counter);
+    trader.order_id = std::to_string(variable.counter);
 
     trader.order_type = 0;
 
-    m.counter++;
+    variable.counter++;
 
-    if(m.price_history.size() < 5){
+    if(variable.price_history.size() < 5){
         return;
     }
 
     int buy_or_sell;
 
-    if(m.price_history.back() > m.price_history.at(m.price_history.size()-5)){
+    if(variable.price_history.back() > variable.price_history.at(variable.price_history.size()-5)){
         buy_or_sell = 0;
 
         trader.side = buy_or_sell;
@@ -169,33 +169,33 @@ void trend_follower::agent(Global_Variables& m){
 
     if(trader.side == 0){
 
-        if(m.price_history.empty()){
-            trader.price = m.starting_price-1;
+        if(variable.price_history.empty()){
+            trader.price = variable.starting_price-1;
         }
         else{
-            std::uniform_int_distribution<int> size(m.price_history.back()-2, m.price_history.back());
+            std::uniform_int_distribution<int> size(variable.price_history.back()-2, variable.price_history.back());
 
-            trader.price = size(m.rng);
+            trader.price = size(variable.rng);
         }
 
         std::uniform_int_distribution<int> share(100, 200);
 
-        trader.shares = share(m.rng);
+        trader.shares = share(variable.rng);
     }
     else{
 
-        if(m.price_history.empty()){
-            trader.price = m.starting_price+1;
+        if(variable.price_history.empty()){
+            trader.price = variable.starting_price+1;
         }
         else{
-            std::uniform_int_distribution<int> size(m.price_history.back(), m.price_history.back()+2);
+            std::uniform_int_distribution<int> size(variable.price_history.back(), variable.price_history.back()+2);
 
-            trader.price = size(m.rng);
+            trader.price = size(variable.rng);
         }
 
         std::uniform_int_distribution<int> share(100, 200);
 
-        trader.shares = share(m.rng);
+        trader.shares = share(variable.rng);
     }
 
     // 1. Record start/end for Task A
@@ -208,57 +208,57 @@ void trend_follower::agent(Global_Variables& m){
 
     trader.timestamp = time;
 
-    std::lock_guard<std::mutex> lock(m.market_mutex);
+    std::lock_guard<std::mutex> lock(variable.market_mutex);
 
-    m.TradingQueue.push(trader);                
+    variable.TradingQueue.push(trader);                
 }
 
-void whale::agent(Global_Variables& m){
+void whale::agent(){
     Order trader;
 
     trader.agent_id = "Whale Trader";
 
-    trader.order_id = std::to_string(m.counter);
+    trader.order_id = std::to_string(variable.counter);
 
     trader.order_type = 0;
 
-    m.counter++;
+    variable.counter++;
 
     std::uniform_int_distribution<int> dist(0, 1);
 
-    int buy_or_sell = dist(m.rng);
+    int buy_or_sell = dist(variable.rng);
 
     trader.side = buy_or_sell;
 
     if(trader.side == 0){
 
-        if(m.price_history.empty()){
-            trader.price = m.starting_price-1;
+        if(variable.price_history.empty()){
+            trader.price = variable.starting_price-1;
         }
         else{
-            std::uniform_int_distribution<int> size(m.price_history.back()-10, m.price_history.back());
+            std::uniform_int_distribution<int> size(variable.price_history.back()-10, variable.price_history.back());
 
-            trader.price = size(m.rng);
+            trader.price = size(variable.rng);
         }
 
         std::uniform_int_distribution<int> share(100, 200);
 
-        trader.shares = share(m.rng);
+        trader.shares = share(variable.rng);
     }
     else{
 
-        if(m.price_history.empty()){
-            trader.price = m.starting_price+1;
+        if(variable.price_history.empty()){
+            trader.price = variable.starting_price+1;
         }
         else{
-            std::uniform_int_distribution<int> size(m.price_history.back(), m.price_history.back()+10);
+            std::uniform_int_distribution<int> size(variable.price_history.back(), variable.price_history.back()+10);
 
-            trader.price = size(m.rng);
+            trader.price = size(variable.rng);
         }
 
         std::uniform_int_distribution<int> share(100, 200);
 
-        trader.shares = share(m.rng);
+        trader.shares = share(variable.rng);
     }
 
     // 1. Record start/end for Task A
@@ -271,7 +271,7 @@ void whale::agent(Global_Variables& m){
 
     trader.timestamp = time;
 
-    std::lock_guard<std::mutex> lock(m.market_mutex);
+    std::lock_guard<std::mutex> lock(variable.market_mutex);
 
-    m.TradingQueue.push(trader);            
+    variable.TradingQueue.push(trader);            
 }
