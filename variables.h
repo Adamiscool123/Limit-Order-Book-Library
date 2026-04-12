@@ -35,8 +35,6 @@ public:
         int shares = 0;
     };
 
-    int counter = 0;
-
     // For tracking time
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     std::mt19937 rng{seed};

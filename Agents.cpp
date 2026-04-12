@@ -22,11 +22,8 @@ void market_maker::execute_agent(){
 
         trader.order_type = 0;
 
-        variable.counter++;
-
         if(c == 0){
             trader.side = 0;
-
 
             if(variable.price_history.empty()){
                 trader.price = variable.starting_price-1;
@@ -77,8 +74,6 @@ void noise_trader::execute_agent(){
     Order trader;
 
     trader.order_type = 0;
-
-    variable.counter++;
 
     std::uniform_int_distribution<int> dist(0, 1);
 
@@ -136,8 +131,6 @@ void trend_follower::execute_agent(){
     Order trader;
 
     trader.order_type = 0;
-
-    variable.counter++;
 
     if(variable.price_history.size() < 5){
         return;
@@ -206,8 +199,6 @@ void whale::execute_agent(){
     Order trader;
 
     trader.order_type = 0;
-
-    variable.counter++;
 
     std::uniform_int_distribution<int> dist(0, 1);
 
