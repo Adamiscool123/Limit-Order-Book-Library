@@ -5,10 +5,10 @@
 
 using namespace std::chrono;
 
-void Agent::loop(Global_Variables& m, int time, std::function<void(Global_Variables& m)> trader){
+void Agent::loop(int time){
     while(true) {
-        trader(m);
-        matching_engine(m);
+        this->agent();
+        matching_engine(variable);
         std::this_thread::sleep_for(std::chrono::milliseconds(time));
     }    
 }

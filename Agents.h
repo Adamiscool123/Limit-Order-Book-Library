@@ -14,7 +14,7 @@ public:
     virtual void agent() = 0;
 
     // Thread loop for trader
-    void loop(Global_Variables& m, int time, std::function<void(Global_Variables& m)> trader);
+    void loop(int timer);
 };
 
 class market_maker : public Agent{
