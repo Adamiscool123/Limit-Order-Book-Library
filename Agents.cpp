@@ -5,15 +5,16 @@
 
 using namespace std::chrono;
 
-void Agent::loop(int time){
+void Agent_Base::loop(int time){
     while(true) {
-        this->agent();
-        matching_engine(variable);
+        Matching_Engine Engine;
+        this->execute_agent();
+        Engine.checker(variable);
         std::this_thread::sleep_for(std::chrono::milliseconds(time));
     }    
 }
 
-void market_maker::agent(){
+void market_maker::execute_agent(){
     int c = 0;
 
     while(c != 2){
@@ -75,7 +76,7 @@ void market_maker::agent(){
     }       
 }
 
-void noise_trader::agent(){
+void noise_trader::execute_agent(){
 
     Order trader;
 
@@ -139,7 +140,7 @@ void noise_trader::agent(){
     variable.TradingQueue.push(trader);
 }
 
-void trend_follower::agent(){
+void trend_follower::execute_agent(){
     Order trader;
 
     trader.agent_id = "Trend Trader";
@@ -213,7 +214,7 @@ void trend_follower::agent(){
     variable.TradingQueue.push(trader);                
 }
 
-void whale::agent(){
+void whale::execute_agent(){
     Order trader;
 
     trader.agent_id = "Whale Trader";

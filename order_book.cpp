@@ -1,8 +1,8 @@
 #include "variables.h"
 #include "order_book.h"
 
-void order_book(Global_Variables& m){
-        std::cout << "\033[2J\033[1;1H";
+void Order_Book::printer(Global_Variables& m){
+    std::cout << "\033[2J\033[1;1H";
 
     std::lock_guard<std::mutex> lock(m.market_mutex);
 
@@ -10,6 +10,12 @@ void order_book(Global_Variables& m){
         return; 
     }
 
+    sell(m);
+
+    buy(m);
+}
+
+void Order_Book::sell(Global_Variables& m){
     std::vector<Global_Variables::order_complete> sell_orders;
 
     std::vector<int> prices_sell;
@@ -51,7 +57,9 @@ void order_book(Global_Variables& m){
     }
 
     std::cout << "--------------------------------------" << std::endl;
+}
 
+void Order_Book::buy(Global_Variables& m){
     std::vector<Global_Variables::order_complete> buy_orders;
 
     std::vector<int> prices_buy;

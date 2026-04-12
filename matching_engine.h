@@ -3,7 +3,16 @@
 
 #include "variables.h"
 
-// Function that is the "backbone" of the LBO, it matches buyers with sellers and sellers with buyers. 
-void matching_engine(Global_Variables& m);
+class Matching_Engine {
+protected:
+    bool break_loop;
+public:
+
+    void checker(Global_Variables& m);
+
+    void buy(Order trader, Global_Variables& m);
+
+    void sell(Order trader, Global_Variables& m);
+};
 
 #endif
