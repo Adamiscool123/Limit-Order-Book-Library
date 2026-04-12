@@ -5,39 +5,17 @@
 
 using namespace std::chrono;
 
-void Agents::noise_trader_loop(Global_Varibles& m){
+void Agents::loop(Global_Varibles& m, int time, std::function<void(Global_Varibles& m)> trader){
     while(true) {
-        this->noise_trader(m);
+        trader(m);
         matching_engine(m);
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        std::this_thread::sleep_for(std::chrono::milliseconds(time));
     }    
 }
 
-void Agents::whale_loop(Global_Varibles& m) {
-    while(true) {
-        this->whale(m);
-        matching_engine(m);
-        std::this_thread::sleep_for(std::chrono::seconds(15));
-    }
-}
 
-void Agents::trend_follower_loop(Global_Varibles& m) {
-    while(true) {
-        this->trend_follower(m);
-        matching_engine(m);
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-    }
-}
 
-void Agents::market_maker_loop(Global_Varibles& m) {
-    while(true) {
-        this->market_maker(m);
-        matching_engine(m);
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    }
-}
-
-void Agents::market_maker(Global_Varibles& m){
+void market_maker::agent(Global_Varibles& m){
     int c = 0;
 
     while(c != 2){
@@ -99,7 +77,7 @@ void Agents::market_maker(Global_Varibles& m){
     }       
 }
 
-void Agents::noise_trader(Global_Varibles& m){
+void noise_trader::agent(Global_Varibles& m){
 
     Global_Varibles::Order trader;
 
@@ -163,7 +141,7 @@ void Agents::noise_trader(Global_Varibles& m){
     m.TradingQueue.push(trader);
 }
 
-void Agents::trend_follower(Global_Varibles& m){
+void trend_follower::agent(Global_Varibles& m){
     Global_Varibles::Order trader;
 
     trader.agent_id = "Trend Trader";
@@ -237,7 +215,7 @@ void Agents::trend_follower(Global_Varibles& m){
     m.TradingQueue.push(trader);                
 }
 
-void Agents::whale(Global_Varibles& m){
+void whale::agent(Global_Varibles& m){
     Global_Varibles::Order trader;
 
     trader.agent_id = "Whale Trader";

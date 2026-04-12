@@ -14,6 +14,7 @@
 #include <queue>
 #include <stdio.h>
 #include <algorithm>
+#include <functional>
 
 class Global_Varibles{
 public:
