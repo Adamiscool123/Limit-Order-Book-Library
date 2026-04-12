@@ -5,15 +5,13 @@
 
 using namespace std::chrono;
 
-void Agents::loop(Global_Variables& m, int time, std::function<void(Global_Variables& m)> trader){
+void loop(Global_Variables& m, int time, std::function<void(Global_Variables& m)> trader){
     while(true) {
         trader(m);
         matching_engine(m);
         std::this_thread::sleep_for(std::chrono::milliseconds(time));
     }    
 }
-
-
 
 void market_maker::agent(Global_Variables& m){
     int c = 0;
