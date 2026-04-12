@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <algorithm>
 #include <functional>
+#include <string>
 
 // Trader order
 struct Order{
