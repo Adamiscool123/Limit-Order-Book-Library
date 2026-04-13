@@ -10,9 +10,9 @@ public:
 
     void checker(Global_Variables& m);
 
-    void buy(Order trader, Global_Variables& m);
+    void buy(Order trader, Global_Variables& m, bool& break_loop);
 
-    void sell(Order trader, Global_Variables& m);
+    void sell(Order trader, Global_Variables& m, bool& break_loop);
 };
 
 #endif
