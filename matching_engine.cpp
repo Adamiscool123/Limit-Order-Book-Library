@@ -13,6 +13,8 @@ void Matching_Engine::checker(Global_Variables& variables){
 
     Order trader = variables.TradingQueue.front();
 
+    Order_Book print;
+
     variables.TradingQueue.pop();
     /*
         While loop that checks if the traders wants to sell and buy, 
@@ -48,7 +50,7 @@ void Matching_Engine::checker(Global_Variables& variables){
         return a.price < b.price;
     });
 
-    order_book(variables);
+    print.printer(variables);
 
     }
 }
