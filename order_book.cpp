@@ -2,6 +2,8 @@
 #include "order_book.h"
 
 void Order_Book::printer(Global_Variables& m){
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+
     std::cout << "\033[2J\033[1;1H";
 
     std::lock_guard<std::mutex> lock(m.market_mutex);
