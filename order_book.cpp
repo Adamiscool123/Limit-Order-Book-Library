@@ -4,8 +4,6 @@
 void Order_Book::printer(Global_Variables& m){
     std::cout << "\033[2J\033[1;1H";
 
-    std::lock_guard<std::mutex> lock(m.market_mutex);
-
     if (m.sell.empty() && m.buy.empty()) {
         return; 
     }
