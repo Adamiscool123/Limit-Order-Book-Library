@@ -55,7 +55,7 @@ void Matching_Engine::checker(Global_Variables& variables){
     }
 }
 
-void Matching_Engine::buy(Order trader, Global_Variables& variables, bool& break_loop){
+void Matching_Engine::buy(Order& trader, Global_Variables& variables, bool& break_loop){
     if (!variables.sell.empty() && trader.price >= variables.sell.front().price) {
         if (trader.shares > variables.sell.front().shares) {
             trader.shares -= variables.sell.front().shares;
@@ -79,7 +79,7 @@ void Matching_Engine::buy(Order trader, Global_Variables& variables, bool& break
     }
 }
 
-void Matching_Engine::sell(Order trader, Global_Variables& variables, bool& break_loop){
+void Matching_Engine::sell(Order& trader, Global_Variables& variables, bool& break_loop){
     if (!variables.buy.empty() && trader.price <= variables.buy.front().price) {
         if (trader.shares > variables.buy.front().shares) {
             trader.shares -= variables.buy.front().shares;
