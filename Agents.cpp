@@ -5,7 +5,7 @@
 
 using namespace std::chrono;
 
-void Agent_Base::loop(int time){
+void Agent_Base::infinite_loop(int time){
     while(true) {
         Matching_Engine Engine;
         this->execute_agent();
@@ -18,6 +18,14 @@ void Agent_Base::execute(){
     Matching_Engine Engine;
     this->execute_agent();
     Engine.checker(variable);
+}
+
+void Agent_Base::loop(int times){
+    for(int i = 0; i < times; i++){
+        Matching_Engine Engine;
+        this->execute_agent();
+        Engine.checker(variable);       
+    }
 }
 
 void market_maker::execute_agent(){

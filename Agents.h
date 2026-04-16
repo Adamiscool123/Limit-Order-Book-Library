@@ -14,9 +14,11 @@ public:
     virtual void execute_agent() = 0;
 
     // Thread loop for trader
-    void loop(int timer);
+    void infinite_loop(int timer);
 
     void execute();
+
+    void loop(int times);
 };
 
 class market_maker : public Agent_Base{
