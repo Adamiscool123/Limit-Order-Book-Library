@@ -44,6 +44,8 @@ void manual::execute_agent(){}
 void manual::trade(int price, int shares, int buy_sell, int limit_market_order){
     Order trader;
 
+    Matching_Engine Engine;
+
     trader.order_type = limit_market_order;
 
     trader.price = price;
@@ -65,6 +67,8 @@ void manual::trade(int price, int shares, int buy_sell, int limit_market_order){
     std::lock_guard<std::mutex> lock(variable.market_mutex);
 
     variable.TradingQueue.push(trader);       
+
+    Engine.checker(variable);
 }
 
 void market_maker::execute_agent(){
