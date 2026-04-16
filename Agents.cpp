@@ -14,6 +14,12 @@ void Agent_Base::loop(int time){
     }    
 }
 
+void Agent_Base::execute(){
+    Matching_Engine Engine;
+    this->execute_agent();
+    Engine.checker(variable);
+}
+
 void market_maker::execute_agent(){
     int c = 0;
 

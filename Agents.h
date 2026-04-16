@@ -15,6 +15,8 @@ public:
 
     // Thread loop for trader
     void loop(int timer);
+
+    void execute();
 };
 
 class market_maker : public Agent_Base{
