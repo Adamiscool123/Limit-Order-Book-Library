@@ -3,6 +3,17 @@
 #include "matching_engine.h"
 #include "order_book.h"
 
+/*
+    Buy = 0
+
+    Sell = 1
+
+    Limit Order = 0
+
+    Marekt Order = 1
+
+*/
+
 using namespace std::chrono;
 
 void Agent_Base::infinite_loop(int time){
@@ -26,6 +37,32 @@ void Agent_Base::loop(int times){
         this->execute_agent();
         Engine.checker(variable);       
     }
+}
+
+void manual::trade(int price, int shares, int buy_sell, int limit_market_order){
+    Order trader;
+
+    trader.order_type = limit_market_order;
+
+    trader.price = price;
+
+    trader.shares = shares;
+
+    trader.side = buy_sell;
+
+    // 1. Record start/end for Task A
+    auto start = steady_clock::now();
+    // ... code for A ...
+    auto end = steady_clock::now();
+
+    // 3. Convert to long long integers (nanoseconds)
+    long long time = duration_cast<nanoseconds>(end - start).count();
+
+    trader.timestamp = time;
+
+    std::lock_guard<std::mutex> lock(variable.market_mutex);
+
+    variable.TradingQueue.push(trader);       
 }
 
 void market_maker::execute_agent(){

@@ -21,6 +21,13 @@ public:
     void loop(int times);
 };
 
+class manual : public Agent_Base{
+public:
+    manual(Global_Variables& m) : Agent_Base(m) {}
+
+    void trade(int price, int shares, int buy_sell, int limit_market_order);
+};
+
 class market_maker : public Agent_Base{
 public: 
     market_maker(Global_Variables& m) : Agent_Base(m) {}
