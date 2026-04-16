@@ -43,30 +43,22 @@ void manual::execute_agent(){}
 
 void manual::trade(int price, int shares, int buy_sell, int limit_market_order){
     Order trader;
-
     Matching_Engine Engine;
 
     trader.order_type = limit_market_order;
-
     trader.price = price;
-
     trader.shares = shares;
-
     trader.side = buy_sell;
 
-    // 1. Record start/end for Task A
     auto start = steady_clock::now();
-    // ... code for A ...
     auto end = steady_clock::now();
-
-    // 3. Convert to long long integers (nanoseconds)
     long long time = duration_cast<nanoseconds>(end - start).count();
-
     trader.timestamp = time;
 
-    std::lock_guard<std::mutex> lock(variable.market_mutex);
-
-    variable.TradingQueue.push(trader);       
+    {
+        std::lock_guard<std::mutex> lock(variable.market_mutex);
+        variable.TradingQueue.push(trader);
+    }
 
     Engine.checker(variable);
 }
