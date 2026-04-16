@@ -39,6 +39,8 @@ void Agent_Base::loop(int times){
     }
 }
 
+void manual::execute_agent(){}
+
 void manual::trade(int price, int shares, int buy_sell, int limit_market_order){
     Order trader;
 
