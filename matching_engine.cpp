@@ -90,7 +90,6 @@ void Matching_Engine::buy(Order& trader, Global_Variables& variables, bool& brea
         }
     }
     else {
-        variables.buy.push_back(trader);
         break_loop = true;
     }
 }
@@ -114,7 +113,6 @@ void Matching_Engine::sell(Order& trader, Global_Variables& variables, bool& bre
         }
     }
     else {
-        variables.sell.push_back(trader);
         break_loop = true;
     }
 }
