@@ -13,6 +13,10 @@ public:
     void buy(Order& trader, Global_Variables& m, bool& break_loop);
 
     void sell(Order& trader, Global_Variables& m, bool& break_loop);
+
+    void sort_buy(Order& trader, Global_Variables& m);
+
+    void sort_sell(Order& trader, Global_Variables& m);
 };
 
 #endif

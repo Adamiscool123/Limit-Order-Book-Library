@@ -2,6 +2,24 @@
 #include "order_book.h"
 #include "matching_engine.h"
 
+void Matching_Engine::sort_buy(Order& trader, Global_Variables& m){
+    auto it = std::lower_bound(m.buy.begin(), m.buy.end(), trader,
+    [](const Order& a, const Order& b){
+        return a.price > b.price;
+    });
+
+    m.buy.insert(it, trader);
+}
+
+void Matching_Engine::sort_sell(Order& trader, Global_Variables& m){
+    auto it = std::lower_bound(m.sell.begin(), m.sell.end(), trader,
+    [](const Order& a, const Order& b){
+        return a.price < b.price;
+    });
+
+    m.sell.insert(it, trader);
+}
+
 void Matching_Engine::checker(Global_Variables& variables){
     {
     // Lock the queue
@@ -41,14 +59,10 @@ void Matching_Engine::checker(Global_Variables& variables){
     }
 
     // Sort the buy vector from largest to smallest (Descending)
-    std::sort(variables.buy.begin(), variables.buy.end(), [](const Order& a, const Order& b) {
-        return a.price > b.price;
-    });
+    sort_buy(trader, variables);
 
     // Sort the sell vector from smallest to largest (Ascending)
-    std::sort(variables.sell.begin(), variables.sell.end(), [](const Order& a, const Order& b) {
-        return a.price < b.price;
-    });
+    sort_sell(trader, variables);
 
     print.printer(variables);
 
