@@ -58,11 +58,13 @@ void Matching_Engine::checker(Global_Variables& variables){
         }
     }
 
-    // Sort the buy vector from largest to smallest (Descending)
-    sort_buy(trader, variables);
-
-    // Sort the sell vector from smallest to largest (Ascending)
-    sort_sell(trader, variables);
+    if (trader.shares > 0) {
+        if (trader.side == 0) {
+            sort_buy(trader, variables);
+        } else {
+            sort_sell(trader, variables);
+        }
+    }
 
     print.printer(variables);
 
