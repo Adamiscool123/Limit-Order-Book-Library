@@ -19,11 +19,9 @@ Current supported functionality:
 - Limit order submission
 - Basic matching engine
 - Partial fills
-- Price-priority matching
 - FIFO handling for equal-priced orders
 - Manual order entry
 - Agent-based order generation
-- Price history tracking
 
 Agent types currently included:
 - Manual trader
