@@ -3,7 +3,7 @@
 #include "matching_engine.h"
 
 void Matching_Engine::sort_buy(Order& trader, Global_Variables& m){
-    auto it = std::lower_bound(m.buy.begin(), m.buy.end(), trader,
+    auto it = std::upper_bound(m.buy.begin(), m.buy.end(), trader,
     [](const Order& a, const Order& b){
         return a.price > b.price;
     });
@@ -12,7 +12,7 @@ void Matching_Engine::sort_buy(Order& trader, Global_Variables& m){
 }
 
 void Matching_Engine::sort_sell(Order& trader, Global_Variables& m){
-    auto it = std::lower_bound(m.sell.begin(), m.sell.end(), trader,
+    auto it = std::upper_bound(m.sell.begin(), m.sell.end(), trader,
     [](const Order& a, const Order& b){
         return a.price < b.price;
     });
