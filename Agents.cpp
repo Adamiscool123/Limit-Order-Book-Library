@@ -41,7 +41,7 @@ void Agent_Base::loop(int times){
 
 void manual::execute_agent(){}
 
-void manual::trade(int price, int shares, int buy_sell, int limit_market_order){
+void manual::trade(int price, int shares, int buy_sell, int limit_market_order, Global_Variables& m){
     Order trader;
     Matching_Engine Engine;
 
@@ -49,6 +49,9 @@ void manual::trade(int price, int shares, int buy_sell, int limit_market_order){
     trader.price = price;
     trader.shares = shares;
     trader.side = buy_sell;
+    trader.order_id = m.count;
+
+    m.count++;
 
     auto start = steady_clock::now();
     auto end = steady_clock::now();
@@ -70,6 +73,10 @@ void market_maker::execute_agent(){
         Order trader;
 
         trader.order_type = 0;
+
+        trader.order_id = variable.count;
+
+        variable.count++;
 
         if(c == 0){
             trader.side = 0;
@@ -123,6 +130,10 @@ void noise_trader::execute_agent(){
     Order trader;
 
     trader.order_type = 0;
+
+    trader.order_id = variable.count;
+
+    variable.count++;
 
     std::uniform_int_distribution<int> dist(0, 1);
 
@@ -180,6 +191,10 @@ void trend_follower::execute_agent(){
     Order trader;
 
     trader.order_type = 0;
+
+    trader.order_id = variable.count;
+
+    variable.count++;
 
     if(variable.price_history.size() < 5){
         return;
@@ -248,6 +263,10 @@ void whale::execute_agent(){
     Order trader;
 
     trader.order_type = 0;
+
+    trader.order_id = variable.count;
+
+    variable.count++;
 
     std::uniform_int_distribution<int> dist(0, 1);
 

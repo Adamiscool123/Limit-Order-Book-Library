@@ -22,6 +22,7 @@ struct Order{
     int price;
     int shares;
     int order_type;
+    int order_id;
     long long timestamp;
     bool traded = false;
 };
@@ -54,6 +55,8 @@ public:
 
     // To lock the Queue so that orders don't run at the same time causing a crash error
     std::mutex market_mutex;
+
+    int count = 0;
 };
 
 #endif
