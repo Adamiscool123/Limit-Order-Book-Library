@@ -21,8 +21,8 @@ FetchContent_MakeAvailable(pybind11)
 
 # 3. Create the Python Module
 # 'order_book_module' must match the name in your PYBIND11_MODULE(order_book_module, m)
-pybind11_add_module(order_book_module python_bindings.cpp)
+pybind11_add_module(orderbook_wrapper python_bindings.cpp)
 
 # 4. Link everything together
 # This tells the module to use the logic from your C++ library
-target_link_libraries(order_book_module PRIVATE Limit_Order_Book)
+target_link_libraries(orderbook_wrapper PRIVATE Limit_Order_Book)
