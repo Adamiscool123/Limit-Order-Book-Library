@@ -8,7 +8,7 @@
 namespace py = pybind11;
 
 // Removed the mod_gil_not_used flag for standard compatibility
-PYBIND11_MODULE(order_book_module, m) {
+PYBIND11_MODULE(orderbook_wrapper, m) {
     m.doc() = "Limit Order Book Python API";
 
     // 1. Wrap the Order Struct (Essential because Matching_Engine uses it)
