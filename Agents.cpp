@@ -12,36 +12,40 @@
 
     Marekt Order = 1
 
+    Print: Yes = 0
+
+    Print : No = 1
+
 */
 
 using namespace std::chrono;
 
-void Agent_Base::infinite_loop(int time){
+void Agent_Base::infinite_loop(int time, int print){
     while(true) {
         Matching_Engine Engine;
         this->execute_agent();
-        Engine.checker(variable);
+        Engine.checker(variable, print);
         std::this_thread::sleep_for(std::chrono::milliseconds(time));
     }    
 }
 
-void Agent_Base::execute(){
+void Agent_Base::execute(int print){
     Matching_Engine Engine;
     this->execute_agent();
-    Engine.checker(variable);
+    Engine.checker(variable, print);
 }
 
-void Agent_Base::loop(int times){
+void Agent_Base::loop(int times, int print){
     for(int i = 0; i < times; i++){
         Matching_Engine Engine;
         this->execute_agent();
-        Engine.checker(variable);       
+        Engine.checker(variable, print);       
     }
 }
 
 void manual::execute_agent(){}
 
-void manual::trade(int price, int shares, int buy_sell, int limit_market_order, Global_Variables& m){
+void manual::trade(int price, int shares, int buy_sell, int limit_market_order, Global_Variables& m, int print){
     Order trader;
     Matching_Engine Engine;
 
@@ -63,7 +67,7 @@ void manual::trade(int price, int shares, int buy_sell, int limit_market_order, 
         variable.TradingQueue.push(trader);
     }
 
-    Engine.checker(variable);
+    Engine.checker(variable, print);
 }
 
 void market_maker::execute_agent(){

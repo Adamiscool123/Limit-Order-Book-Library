@@ -14,46 +14,46 @@ public:
     virtual void execute_agent() = 0;
 
     // Thread loop for trader
-    void infinite_loop(int timer);
+    void infinite_loop(int timer, int print);
 
-    void execute();
+    void execute(int print);
 
-    void loop(int times);
+    void loop(int times, int print);
 };
 
 class manual : public Agent_Base{
 public:
-    manual(Global_Variables& m) : Agent_Base(m) {}
+    manual(Global_Variables& m, int print) : Agent_Base(m) {}
 
-    void trade(int price, int shares, int buy_sell, int limit_market_order, Global_Variables& m);
+    void trade(int price, int shares, int buy_sell, int limit_market_order, Global_Variables& m, int print);
 
     void execute_agent() override;
 };
 
 class market_maker : public Agent_Base{
 public: 
-    market_maker(Global_Variables& m) : Agent_Base(m) {}
+    market_maker(Global_Variables& m, int print) : Agent_Base(m) {}
 
     void execute_agent() override;
 };
 
 class noise_trader : public Agent_Base{
 public: 
-    noise_trader(Global_Variables& m) : Agent_Base(m) {}
+    noise_trader(Global_Variables& m, int print) : Agent_Base(m) {}
 
     void execute_agent() override;
 };
 
 class trend_follower : public Agent_Base{
 public: 
-    trend_follower(Global_Variables& m) : Agent_Base(m) {}
+    trend_follower(Global_Variables& m, int print) : Agent_Base(m) {}
 
     void execute_agent() override;
 };
 
 class whale : public Agent_Base{
 public: 
-    whale(Global_Variables& m) : Agent_Base(m) {}
+    whale(Global_Variables& m, int print) : Agent_Base(m) {}
 
     void execute_agent() override;
 };

@@ -5,11 +5,11 @@
 
 class Order_Book{
 public:
-    void printer(Global_Variables& m);
+    void printer(Global_Variables& m, int print);
 
-    void sell(Global_Variables& m);
+    void sell(Global_Variables& m, int print);
 
-    void buy(Global_Variables& m);
+    void buy(Global_Variables& m, int print);
 };
 
 #endif

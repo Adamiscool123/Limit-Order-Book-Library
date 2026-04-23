@@ -20,7 +20,7 @@ void Matching_Engine::sort_sell(Order& trader, Global_Variables& m){
     m.sell.insert(it, trader);
 }
 
-void Matching_Engine::checker(Global_Variables& variables){
+void Matching_Engine::checker(Global_Variables& variables, int print){
     {
     // Lock the queue
     std::lock_guard<std::mutex> lock(variables.market_mutex);
@@ -31,7 +31,7 @@ void Matching_Engine::checker(Global_Variables& variables){
 
     Order trader = variables.TradingQueue.front();
 
-    Order_Book print;
+    Order_Book print_order_book;
 
     variables.TradingQueue.pop();
     /*
@@ -51,10 +51,10 @@ void Matching_Engine::checker(Global_Variables& variables){
 
     while (trader.shares > 0 && break_loop == false) {
         if (trader.side == 0) {  // buy
-            buy(trader, variables, break_loop);
+            buy(trader, variables, break_loop, print);
         }
         else {  // sell
-            sell(trader, variables, break_loop);
+            sell(trader, variables, break_loop, print);
         }
     }
 
@@ -66,12 +66,12 @@ void Matching_Engine::checker(Global_Variables& variables){
         }
     }
 
-    print.printer(variables);
+    print_order_book.printer(variables);
 
     }
 }
 
-void Matching_Engine::buy(Order& trader, Global_Variables& variables, bool& break_loop){
+void Matching_Engine::buy(Order& trader, Global_Variables& variables, bool& break_loop, int print){
     if (!variables.sell.empty() && trader.price >= variables.sell.front().price) {
         if (trader.shares > variables.sell.front().shares) {
             trader.shares -= variables.sell.front().shares;
@@ -94,7 +94,7 @@ void Matching_Engine::buy(Order& trader, Global_Variables& variables, bool& brea
     }
 }
 
-void Matching_Engine::sell(Order& trader, Global_Variables& variables, bool& break_loop){
+void Matching_Engine::sell(Order& trader, Global_Variables& variables, bool& break_loop, int print){
     if (!variables.buy.empty() && trader.price <= variables.buy.front().price) {
         if (trader.shares > variables.buy.front().shares) {
             trader.shares -= variables.buy.front().shares;

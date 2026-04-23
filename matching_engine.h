@@ -8,11 +8,11 @@ protected:
     bool break_loop;
 public:
 
-    void checker(Global_Variables& m);
+    void checker(Global_Variables& m, int print);
 
-    void buy(Order& trader, Global_Variables& m, bool& break_loop);
+    void buy(Order& trader, Global_Variables& m, bool& break_loop, int print);
 
-    void sell(Order& trader, Global_Variables& m, bool& break_loop);
+    void sell(Order& trader, Global_Variables& m, bool& break_loop, int print);
 
     void sort_buy(Order& trader, Global_Variables& m);
 
