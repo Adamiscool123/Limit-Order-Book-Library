@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 project(LimitOrderBook CXX)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # 1. Your existing library
 # Keep this as is, but we'll link to it later
