@@ -25,11 +25,6 @@ PYBIND11_MODULE(orderbook_wrapper, m) {
       .def_readwrite("price_history", &Global_Variables::price_history)
       .def_readwrite("count", &Global_Variables::count);
 
-    py::class_<Global_Variables::order_complete>(gv, "OrderComplete")
-        .def(py::init<>())
-        .def_readwrite("price", &Global_Variables::order_complete::price)
-        .def_readwrite("shares", &Global_Variables::order_complete::shares);
-
     py::class_<Matching_Engine>(m, "Matching_Engine")
         .def(py::init<>())
         .def("checker", &Matching_Engine::checker)

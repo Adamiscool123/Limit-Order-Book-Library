@@ -35,12 +35,6 @@ struct PriceLevel {
 class Global_Variables{
 public:
 
-    struct order_complete{
-        int price;
-
-        int shares = 0;
-    };
-
     // For tracking time
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     std::mt19937 rng{seed};
