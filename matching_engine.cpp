@@ -66,7 +66,7 @@ void Matching_Engine::checker(Global_Variables& variables, int print){
         }
     }
 
-    print_order_book.printer(variables);
+    print_order_book.printer(variables, print);
 
     }
 }
