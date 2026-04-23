@@ -4,7 +4,7 @@
 void Order_Book::printer(Global_Variables& m, int print){
     std::cout << "\033[2J\033[1;1H";
 
-    if (m.sell.empty() && m.buy.empty()) {
+    if (m.sellMap.empty() && m.buyMap.empty()) {
         return; 
     }
 
@@ -14,88 +14,41 @@ void Order_Book::printer(Global_Variables& m, int print){
 }
 
 void Order_Book::sell(Global_Variables& m, int print){
-    std::vector<Global_Variables::order_complete> sell_orders;
+    for (const auto& [price, level] : m.sellMap) {
+        int total_shares = 0;
 
-    std::vector<int> prices_sell;
-
-    bool found_sell = false;
-
-    for(int i = 0; i < m.sell.size(); i++){
-        Global_Variables::order_complete t1;
-        
-        t1.price = m.sell.at(i).price; 
-
-        t1.shares = m.sell.at(i).shares;
-
-        for(int j = 0; j < m.sell.size(); j++){
-            if(m.sell.at(i).price == m.sell.at(j).price && i != j){
-                t1.shares += m.sell.at(j).shares;
-            }
+        for (const auto& order : level.orders) {
+            total_shares += order.shares;
         }
 
-        for(const int n : prices_sell){
-            if(m.sell.at(i).price == n){
-                found_sell = true;
-            }
-        }
+        if (total_shares > 0 && price == 0) {
+            std::cout << "       Order Book" << std::endl;
 
-        if(found_sell == false){
-            sell_orders.push_back(t1);
-            prices_sell.push_back(t1.price);
+            std::cout << "SELL:   $" << price << " | " << total_shares << std::endl;
         }
-
-        found_sell = false;
     }
 
     if(print == 0){
-        std::cout << "       Order Book" << std::endl;
-
-        for (int i = 0; i < sell_orders.size(); i++) {
-            
-            std::cout << "SELL:   $" << sell_orders.at(i).price << " | " << sell_orders.at(i).shares << std::endl;
-        }
-
         std::cout << "--------------------------------------" << std::endl;
     }
 }
 
 void Order_Book::buy(Global_Variables& m, int print){
-    std::vector<Global_Variables::order_complete> buy_orders;
+    for (const auto& [price, level] : m.buyMap) {
+        int total_shares = 0;
 
-    std::vector<int> prices_buy;
-
-    bool found_buy = false;
-
-    for(int i = 0; i < m.buy.size(); i++){
-        Global_Variables::order_complete t1;
-        
-        t1.price = m.buy.at(i).price; 
-
-        t1.shares = m.buy.at(i).shares;
-
-        for(int j = 0; j < m.buy.size(); j++){
-            if(m.buy.at(i).price == m.buy.at(j).price && i != j){
-                t1.shares += m.buy.at(j).shares;
-            }
+        for (const auto& order : level.orders) {
+            total_shares += order.shares;
         }
 
-        for(const int n : prices_buy){
-            if(m.buy.at(i).price == n){
-                found_buy = true;
-            }
-        }
+        if (total_shares > 0 && price == 0) {
+            std::cout << "       Order Book" << std::endl;
 
-        if(found_buy == false){
-            buy_orders.push_back(t1);
-            prices_buy.push_back(t1.price);
+            std::cout << "BUY:   $" << price << " | " << total_shares << std::endl;
         }
-
-        found_buy = false;
     }
 
     if(print == 0){
-        for (int i = 0; i < buy_orders.size(); i++) {
-            std::cout << "BUY:   $" << buy_orders.at(i).price << " | " << buy_orders.at(i).shares << std::endl;
-        }        
+        std::cout << "--------------------------------------" << std::endl;
     }
 }

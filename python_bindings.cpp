@@ -37,8 +37,6 @@ PYBIND11_MODULE(orderbook_wrapper, m) {
         .def("checker", &Matching_Engine::checker)
         .def("buy", &Matching_Engine::buy)
         .def("sell", &Matching_Engine::sell)
-        .def("sort_buy", &Matching_Engine::sort_buy)
-        .def("sort_sell", &Matching_Engine::sort_sell);
 
     py::class_<Order_Book>(m, "Order_Book")
         .def(py::init<>())
