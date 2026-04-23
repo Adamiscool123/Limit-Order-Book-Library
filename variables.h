@@ -27,6 +27,11 @@ struct Order{
     bool traded = false;
 };
 
+struct PriceLevel {
+    int total_shares = 0;
+    std::list<Order> orders; 
+};
+
 class Global_Variables{
 public:
 
@@ -46,9 +51,9 @@ public:
     // Trading queue for orders which then gets either pushed to the buy or the sell section depending on the traders decision 
     std::queue<Order> TradingQueue;
 
-    // Orders for buy and sell
-    std::vector <Order> buy;
-    std::vector <Order> sell;
+    std::map<int, PriceLevel, std::greater<int>> buyMap;
+
+    std::map<int, PriceLevel> sellMap;
 
     // After an order is executed the first one gets put into price history.
     std::vector <int> price_history;

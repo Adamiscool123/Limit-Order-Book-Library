@@ -2,24 +2,6 @@
 #include "order_book.h"
 #include "matching_engine.h"
 
-void Matching_Engine::sort_buy(Order& trader, Global_Variables& m){
-    auto it = std::upper_bound(m.buy.begin(), m.buy.end(), trader,
-    [](const Order& a, const Order& b){
-        return a.price > b.price;
-    });
-
-    m.buy.insert(it, trader);
-}
-
-void Matching_Engine::sort_sell(Order& trader, Global_Variables& m){
-    auto it = std::upper_bound(m.sell.begin(), m.sell.end(), trader,
-    [](const Order& a, const Order& b){
-        return a.price < b.price;
-    });
-
-    m.sell.insert(it, trader);
-}
-
 void Matching_Engine::checker(Global_Variables& variables, int print){
     {
     // Lock the queue
@@ -60,9 +42,11 @@ void Matching_Engine::checker(Global_Variables& variables, int print){
 
     if (trader.shares > 0) {
         if (trader.side == 0) {
-            sort_buy(trader, variables);
+            variables.buyMap[trader.price].orders.push_back(trader);
+            variables.buyMap[trader.price].total_shares += trader.shares;
         } else {
-            sort_sell(trader, variables);
+            variables.sellMap[trader.price].orders.push_back(trader);
+            variables.sellMap[trader.price].total_shares += trader.shares;
         }
     }
 
@@ -72,20 +56,25 @@ void Matching_Engine::checker(Global_Variables& variables, int print){
 }
 
 void Matching_Engine::buy(Order& trader, Global_Variables& variables, bool& break_loop, int print){
-    if (!variables.sell.empty() && trader.price >= variables.sell.front().price) {
-        if (trader.shares > variables.sell.front().shares) {
-            trader.shares -= variables.sell.front().shares;
-            variables.price_history.push_back(variables.sell.front().price);
-            variables.sell.erase(variables.sell.begin());
+    if (!variables.sellMap.empty() && trader.price >= variables.sellMap.begin()->first) {
+
+        auto best_sell_level = variables.sellMap.begin();
+
+        Order& best_sell_order = best_sell_level->second.orders.front();
+
+        if (trader.shares > best_sell_order.shares) {
+            trader.shares -= best_sell_order.shares;
+            variables.price_history.push_back(best_sell_level->first);
+            best_sell_level->second.orders.pop_front();
         }
-        else if (trader.shares == variables.sell.front().shares) {
-            variables.price_history.push_back(variables.sell.front().price);
+        else if (trader.shares == best_sell_order.shares) {
+            variables.price_history.push_back(best_sell_level->first);
             trader.shares = 0;
-            variables.sell.erase(variables.sell.begin());
+            best_sell_level->second.orders.pop_front();
         }
         else {
-            variables.price_history.push_back(variables.sell.front().price);
-            variables.sell.front().shares -= trader.shares;
+            variables.price_history.push_back(best_sell_level->first);
+            best_sell_order.shares -= trader.shares;
             trader.shares = 0;
         }
     }
@@ -95,20 +84,25 @@ void Matching_Engine::buy(Order& trader, Global_Variables& variables, bool& brea
 }
 
 void Matching_Engine::sell(Order& trader, Global_Variables& variables, bool& break_loop, int print){
-    if (!variables.buy.empty() && trader.price <= variables.buy.front().price) {
-        if (trader.shares > variables.buy.front().shares) {
-            trader.shares -= variables.buy.front().shares;
-            variables.price_history.push_back(variables.buy.front().price);
-            variables.buy.erase(variables.buy.begin());
+    if (!variables.buyMap.empty() && trader.price <= variables.buyMap.begin()->first) {
+
+        auto best_buy_level = variables.buyMap.begin();
+
+        Order& best_buy_order = best_buy_level->second.orders.front();
+
+        if (trader.shares > best_buy_order.shares) {
+            trader.shares -= best_buy_order.shares;
+            variables.price_history.push_back(best_buy_level->first);
+            best_buy_level->second.orders.pop_front();
         }
-        else if (trader.shares == variables.buy.front().shares) {
-            variables.price_history.push_back(variables.buy.front().price);
+        else if (trader.shares == best_buy_order.shares) {
+            variables.price_history.push_back(best_buy_level->first);
             trader.shares = 0;
-            variables.buy.erase(variables.buy.begin());
+            best_buy_level->second.orders.pop_front();
         }
         else {
-            variables.price_history.push_back(variables.buy.front().price);
-            variables.buy.front().shares -= trader.shares;
+            variables.price_history.push_back(best_buy_level->first);
+            best_buy_order.shares -= trader.shares;
             trader.shares = 0;
         }
     }
