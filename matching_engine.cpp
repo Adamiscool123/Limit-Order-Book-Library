@@ -2,7 +2,7 @@
 #include "order_book.h"
 #include "matching_engine.h"
 
-void Matching_Engine::checker(Global_Variables& variables, int print){
+void Matching_Engine::checker(Global_Variables& variables){
     {
     // Lock the queue
     std::lock_guard<std::mutex> lock(variables.market_mutex);
@@ -33,10 +33,10 @@ void Matching_Engine::checker(Global_Variables& variables, int print){
 
     while (trader.shares > 0 && break_loop == false) {
         if (trader.side == 0) {  // buy
-            buy(trader, variables, break_loop, print);
+            buy(trader, variables, break_loop);
         }
         else {  // sell
-            sell(trader, variables, break_loop, print);
+            sell(trader, variables, break_loop);
         }
     }
 
@@ -50,12 +50,12 @@ void Matching_Engine::checker(Global_Variables& variables, int print){
         }
     }
 
-    print_order_book.printer(variables, print);
+    print_order_book.printer(variables);
 
     }
 }
 
-void Matching_Engine::buy(Order& trader, Global_Variables& variables, bool& break_loop, int print){
+void Matching_Engine::buy(Order& trader, Global_Variables& variables, bool& break_loop){
     if (!variables.sellMap.empty() && trader.price >= variables.sellMap.begin()->first) {
 
         auto best_sell_level = variables.sellMap.begin();
@@ -83,7 +83,7 @@ void Matching_Engine::buy(Order& trader, Global_Variables& variables, bool& brea
     }
 }
 
-void Matching_Engine::sell(Order& trader, Global_Variables& variables, bool& break_loop, int print){
+void Matching_Engine::sell(Order& trader, Global_Variables& variables, bool& break_loop){
     if (!variables.buyMap.empty() && trader.price <= variables.buyMap.begin()->first) {
 
         auto best_buy_level = variables.buyMap.begin();

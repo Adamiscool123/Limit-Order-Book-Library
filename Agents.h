@@ -14,18 +14,18 @@ public:
     virtual void execute_agent() = 0;
 
     // Thread loop for trader
-    void infinite_loop(int timer, int print);
+    void infinite_loop(int timer);
 
-    void execute(int print);
+    void execute();
 
-    void loop(int times, int print);
+    void loop(int times);
 };
 
 class manual : public Agent_Base{
 public:
     manual(Global_Variables& m) : Agent_Base(m) {}
 
-    void trade(int price, int shares, int buy_sell, int limit_market_order, Global_Variables& m, int print);
+    void trade(int price, int shares, int buy_sell, int limit_market_order, Global_Variables& m);
 
     void execute_agent() override;
 };
