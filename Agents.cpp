@@ -20,7 +20,7 @@
 
 using namespace std::chrono;
 
-void Agent_Base::infinite_loop(int time ){
+void Agent_Base::infinite_loop(int time){
     while(true) {
         Matching_Engine Engine;
         this->execute_agent();
@@ -35,7 +35,7 @@ void Agent_Base::execute(){
     Engine.checker(variable);
 }
 
-void Agent_Base::loop(int times ){
+void Agent_Base::loop(int times){
     for(int i = 0; i < times; i++){
         Matching_Engine Engine;
         this->execute_agent();
@@ -63,11 +63,11 @@ void manual::trade(int price, int shares, int buy_sell, int limit_market_order, 
     trader.timestamp = time;
 
     {
-        std::lock_guard<std::mutex> lock(variable.market_mutex);
-        variable.TradingQueue.push(trader);
+        std::lock_guard<std::mutex> lock(m.market_mutex);
+        m.TradingQueue.push(trader);
     }
 
-    Engine.checker(variable);
+    Engine.checker(m);
 }
 
 void market_maker::execute_agent(){
