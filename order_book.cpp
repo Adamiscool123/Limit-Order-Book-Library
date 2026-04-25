@@ -14,6 +14,8 @@ void Order_Book::printer(Global_Variables& m){
 }
 
 void Order_Book::sell(Global_Variables& m){
+    std::cout << "       Order Book" << std::endl;
+
     for (const auto& [price, level] : m.sellMap) {
         int total_shares = 0;
 
@@ -22,8 +24,6 @@ void Order_Book::sell(Global_Variables& m){
         }
 
         if (total_shares > 0) {
-            std::cout << "       Order Book" << std::endl;
-
             std::cout << "SELL:   $" << price << " | " << total_shares << std::endl;
         }
     }
@@ -40,8 +40,6 @@ void Order_Book::buy(Global_Variables& m){
         }
 
         if (total_shares > 0) {
-            std::cout << "       Order Book" << std::endl;
-
             std::cout << "BUY:   $" << price << " | " << total_shares << std::endl;
         }
     }
