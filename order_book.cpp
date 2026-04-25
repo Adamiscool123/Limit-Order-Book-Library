@@ -25,10 +25,10 @@ void Order_Book::sell(Global_Variables& m){
             std::cout << "       Order Book" << std::endl;
 
             std::cout << "SELL:   $" << price << " | " << total_shares << std::endl;
-
-            std::cout << "--------------------------------------" << std::endl;
         }
     }
+
+    std::cout << "--------------------------------------" << std::endl;
 }
 
 void Order_Book::buy(Global_Variables& m){
@@ -43,8 +43,8 @@ void Order_Book::buy(Global_Variables& m){
             std::cout << "       Order Book" << std::endl;
 
             std::cout << "BUY:   $" << price << " | " << total_shares << std::endl;
-
-            std::cout << "--------------------------------------" << std::endl;
         }
     }
+
+    std::cout << "--------------------------------------" << std::endl;
 }
