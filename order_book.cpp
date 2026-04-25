@@ -43,6 +43,4 @@ void Order_Book::buy(Global_Variables& m){
             std::cout << "BUY:   $" << price << " | " << total_shares << std::endl;
         }
     }
-
-    std::cout << "--------------------------------------" << std::endl;
 }
