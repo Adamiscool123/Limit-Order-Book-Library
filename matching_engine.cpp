@@ -50,8 +50,6 @@ void Matching_Engine::checker(Global_Variables& variables){
         }
     }
 
-    print_order_book.printer(variables);
-
     }
 }
 
