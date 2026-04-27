@@ -61,18 +61,32 @@ void Matching_Engine::buy(Order& trader, Global_Variables& variables, bool& brea
         Order& best_sell_order = best_sell_level->second.orders.front();
 
         if (trader.shares > best_sell_order.shares) {
-            trader.shares -= best_sell_order.shares;
             variables.price_history.push_back(best_sell_level->first);
+            int matched = best_sell_order.shares;
+            trader.shares -= matched;
+            best_sell_level->second.total_shares -= matched;
             best_sell_level->second.orders.pop_front();
+
+            if (best_sell_level->second.orders.empty()) {
+                variables.sellMap.erase(best_sell_level);
+            }
         }
         else if (trader.shares == best_sell_order.shares) {
             variables.price_history.push_back(best_sell_level->first);
+            int matched = best_sell_order.shares;
+            best_sell_level->second.total_shares -= matched;
             trader.shares = 0;
             best_sell_level->second.orders.pop_front();
+
+            if (best_sell_level->second.orders.empty()) {
+                variables.sellMap.erase(best_sell_level);
+            }
         }
         else {
             variables.price_history.push_back(best_sell_level->first);
-            best_sell_order.shares -= trader.shares;
+            int matched = trader.shares;
+            best_sell_order.shares -= matched;
+            best_sell_level->second.total_shares -= matched;
             trader.shares = 0;
         }
     }
@@ -89,18 +103,32 @@ void Matching_Engine::sell(Order& trader, Global_Variables& variables, bool& bre
         Order& best_buy_order = best_buy_level->second.orders.front();
 
         if (trader.shares > best_buy_order.shares) {
-            trader.shares -= best_buy_order.shares;
             variables.price_history.push_back(best_buy_level->first);
+            int matched = best_buy_order.shares;
+            trader.shares -= matched;
+            best_buy_level->second.total_shares -= matched;
             best_buy_level->second.orders.pop_front();
+
+            if (best_buy_level->second.orders.empty()) {
+                variables.buyMap.erase(best_buy_level);
+            }
         }
         else if (trader.shares == best_buy_order.shares) {
             variables.price_history.push_back(best_buy_level->first);
+            int matched = best_buy_order.shares;
+            best_buy_level->second.total_shares -= matched;
             trader.shares = 0;
             best_buy_level->second.orders.pop_front();
+
+            if (best_buy_level->second.orders.empty()) {
+                variables.buyMap.erase(best_buy_level);
+            }
         }
         else {
             variables.price_history.push_back(best_buy_level->first);
-            best_buy_order.shares -= trader.shares;
+            int matched = trader.shares;
+            best_buy_order.shares -= matched;
+            best_buy_level->second.total_shares -= matched;
             trader.shares = 0;
         }
     }
