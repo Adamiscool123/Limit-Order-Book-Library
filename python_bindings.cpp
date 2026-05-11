@@ -21,9 +21,11 @@ PYBIND11_MODULE(orderbook_wrapper, m) {
 
     py::class_<Global_Variables> gv(m, "GlobalVariables");
     gv.def(py::init<>())
-      .def_readwrite("starting_price", &Global_Variables::starting_price)
-      .def_readwrite("price_history", &Global_Variables::price_history)
-      .def_readwrite("count", &Global_Variables::count);
+    .def_readwrite("starting_price", &Global_Variables::starting_price)
+    .def_readwrite("price_history", &Global_Variables::price_history)
+    .def_readwrite("count", &Global_Variables::count)
+    .def_readwrite("buyMap", &Global_Variables::buyMap)
+    .def_readwrite("sellMap", &Global_Variables::sellMap);
 
     py::class_<Matching_Engine>(m, "Matching_Engine")
         .def(py::init<>())
@@ -62,4 +64,11 @@ PYBIND11_MODULE(orderbook_wrapper, m) {
     py::class_<whale, Agent_Base>(m, "Whale")
         .def(py::init<Global_Variables&>(), py::keep_alive<1, 2>())
         .def("execute_agent", &whale::execute_agent);
+
+    py::class_<PriceLevel>(m, "PriceLevel")
+        .def(py::init<>())
+        .def_readwrite("total_shares", &PriceLevel::total_shares)
+        .def_readwrite("orders", &PriceLevel::orders);
+    
+
 }
