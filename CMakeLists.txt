@@ -17,7 +17,7 @@ include(FetchContent)
 FetchContent_Declare(
   pybind11
   GIT_REPOSITORY https://github.com/pybind/pybind11.git
-  GIT_TAG        v2.11.1
+  GIT_TAG        v3.0.1
 )
 FetchContent_MakeAvailable(pybind11)
 
@@ -29,3 +29,7 @@ pybind11_add_module(orderbook_wrapper ${CMAKE_CURRENT_SOURCE_DIR}/python_binding
 # 4. Link everything together
 # This tells the module to use the logic from your C++ library
 target_link_libraries(orderbook_wrapper PRIVATE Limit_Order_Book)
+# Statically link MinGW runtime so the .pyd has no libgcc/libstdc++ DLL dependencies
+if(MINGW)
+    target_link_options(orderbook_wrapper PRIVATE -static-libgcc -static-libstdc++ -Wl,-Bstatic,--whole-archive -lwinpthread -Wl,--no-whole-archive)
+endif()
