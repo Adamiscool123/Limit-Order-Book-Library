@@ -96,7 +96,7 @@ void market_maker::execute_agent()
 
             if (variable.price_history.empty())
             {
-                std::uniform_int_distribution<int> price_dist(variable.starting_price - 5, variable.starting_price - 1);
+                std::uniform_int_distribution<int> price_dist(variable.starting_price - 5, variable.starting_price + 1);
                 trader.price = price_dist(variable.rng);
             }
             else
@@ -114,7 +114,7 @@ void market_maker::execute_agent()
 
             if (variable.price_history.empty())
             {
-                std::uniform_int_distribution<int> price_dist(variable.starting_price + 1, variable.starting_price + 5);
+                std::uniform_int_distribution<int> price_dist(variable.starting_price - 1, variable.starting_price + 5);
                 trader.price = price_dist(variable.rng);
             }
             else
@@ -167,7 +167,7 @@ void noise_trader::execute_agent()
 
         if (variable.price_history.empty())
         {
-            std::uniform_int_distribution<int> price_dist(variable.starting_price - 5, variable.starting_price - 1);
+            std::uniform_int_distribution<int> price_dist(variable.starting_price - 5, variable.starting_price + 1);
             trader.price = price_dist(variable.rng);
         }
         else
@@ -186,7 +186,7 @@ void noise_trader::execute_agent()
 
         if (variable.price_history.empty())
         {
-            std::uniform_int_distribution<int> price_dist(variable.starting_price + 1, variable.starting_price + 5);
+            std::uniform_int_distribution<int> price_dist(variable.starting_price - 1, variable.starting_price + 5);
             trader.price = price_dist(variable.rng);
         }
         else
@@ -251,7 +251,7 @@ void trend_follower::execute_agent()
 
         if (variable.price_history.empty())
         {
-            std::uniform_int_distribution<int> price_dist(variable.starting_price - 5, variable.starting_price - 1);
+            std::uniform_int_distribution<int> price_dist(variable.starting_price - 5, variable.starting_price + 1);
             trader.price = price_dist(variable.rng);
         }
         else
@@ -270,7 +270,7 @@ void trend_follower::execute_agent()
 
         if (variable.price_history.empty())
         {
-            std::uniform_int_distribution<int> price_dist(variable.starting_price + 1, variable.starting_price + 5);
+            std::uniform_int_distribution<int> price_dist(variable.starting_price - 1, variable.starting_price + 5);
             trader.price = price_dist(variable.rng);
         }
         else
@@ -321,7 +321,7 @@ void whale::execute_agent()
 
         if (variable.price_history.empty())
         {
-            std::uniform_int_distribution<int> price_dist(variable.starting_price - 5, variable.starting_price - 1);
+            std::uniform_int_distribution<int> price_dist(variable.starting_price - 5, variable.starting_price + 1);
             trader.price = price_dist(variable.rng);
         }
         else
@@ -340,7 +340,7 @@ void whale::execute_agent()
 
         if (variable.price_history.empty())
         {
-            std::uniform_int_distribution<int> price_dist(variable.starting_price + 1, variable.starting_price + 5);
+            std::uniform_int_distribution<int> price_dist(variable.starting_price - 1, variable.starting_price + 5);
             trader.price = price_dist(variable.rng);
         }
         else
