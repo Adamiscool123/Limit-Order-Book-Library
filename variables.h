@@ -1,5 +1,5 @@
-#ifndef VARIBLES_H
-#define VARIBLES_H
+#ifndef VARIABLES_H
+#define VARIABLES_H
 
 #include <iostream>
 #include <random>
@@ -17,7 +17,8 @@
 #include <functional>
 
 // Trader order
-struct Order{
+struct Order
+{
     int side;
     int price;
     int shares;
@@ -27,14 +28,15 @@ struct Order{
     bool traded = false;
 };
 
-struct PriceLevel {
+struct PriceLevel
+{
     int total_shares = 0;
-    std::list<Order> orders; 
+    std::list<Order> orders;
 };
 
-class Global_Variables{
+class Global_Variables
+{
 public:
-
     // For tracking time
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     std::mt19937 rng{seed};
@@ -42,7 +44,7 @@ public:
     // Starting price for stock
     int starting_price = 100;
 
-    // Trading queue for orders which then gets either pushed to the buy or the sell section depending on the traders decision 
+    // Trading queue for orders which then gets either pushed to the buy or the sell section depending on the traders decision
     std::queue<Order> TradingQueue;
 
     std::map<int, PriceLevel, std::greater<int>> buyMap;
@@ -50,7 +52,7 @@ public:
     std::map<int, PriceLevel> sellMap;
 
     // After an order is executed the first one gets put into price history.
-    std::vector <int> price_history;
+    std::vector<int> price_history;
 
     // To lock the Queue so that orders don't run at the same time causing a crash error
     std::mutex market_mutex;
