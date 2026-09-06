@@ -3,11 +3,13 @@
 
 #include "variables.h"
 
-class Agent_Base{
+class Agent_Base
+{
 protected:
-    Global_Variables& variable;
-public: 
-    Agent_Base(Global_Variables& m) : variable(m) {}
+    Global_Variables &variable;
+
+public:
+    Agent_Base(Global_Variables &m) : variable(m) {}
 
     virtual ~Agent_Base() = default;
 
@@ -21,39 +23,44 @@ public:
     void loop(int times);
 };
 
-class manual : public Agent_Base{
+class manual : public Agent_Base
+{
 public:
-    manual(Global_Variables& m) : Agent_Base(m) {}
+    manual(Global_Variables &m) : Agent_Base(m) {}
 
-    void trade(int price, int shares, int buy_sell, int limit_market_order, Global_Variables& m);
-
-    void execute_agent() override;
-};
-
-class market_maker : public Agent_Base{
-public: 
-    market_maker(Global_Variables& m) : Agent_Base(m) {}
+    void trade(int price, int shares, int buy_sell, int limit_market_order, Global_Variables &m);
 
     void execute_agent() override;
 };
 
-class noise_trader : public Agent_Base{
-public: 
-    noise_trader(Global_Variables& m) : Agent_Base(m) {}
+class market_maker : public Agent_Base
+{
+public:
+    market_maker(Global_Variables &m) : Agent_Base(m) {}
 
     void execute_agent() override;
 };
 
-class trend_follower : public Agent_Base{
-public: 
-    trend_follower(Global_Variables& m) : Agent_Base(m) {}
+class noise_trader : public Agent_Base
+{
+public:
+    noise_trader(Global_Variables &m) : Agent_Base(m) {}
 
     void execute_agent() override;
 };
 
-class whale : public Agent_Base{
-public: 
-    whale(Global_Variables& m) : Agent_Base(m) {}
+class trend_follower : public Agent_Base
+{
+public:
+    trend_follower(Global_Variables &m) : Agent_Base(m) {}
+
+    void execute_agent() override;
+};
+
+class whale : public Agent_Base
+{
+public:
+    whale(Global_Variables &m) : Agent_Base(m) {}
 
     void execute_agent() override;
 };
