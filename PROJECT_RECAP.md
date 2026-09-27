@@ -55,7 +55,7 @@ struct Order {
 
 struct PriceLevel {
     int total_shares;          // running total at this price
-    std::list<Order> orders;   // FIFO queue -> time priority for equal prices
+    std::list<Order> orders;   // FIFO (First in First out) queue -> time priority for equal prices
 };
 ```
 

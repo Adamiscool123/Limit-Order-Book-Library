@@ -28,11 +28,27 @@ struct Order
     bool traded = false;
 };
 
+/*
+Price Level groups same prices
+
+$100 - 5 shares
+
+$100 - 6 shares
+
+For prices with 100:
+ 
+[5, 6]
+
+
+*/
+
 struct PriceLevel
 {
     int total_shares = 0;
     std::list<Order> orders;
 };
+
+// Some global variables to help.
 
 class Global_Variables
 {
@@ -47,8 +63,12 @@ public:
     // Trading queue for orders which then gets either pushed to the buy or the sell section depending on the traders decision
     std::queue<Order> TradingQueue;
 
+    // The two sides of the order book
+
+    // Buy
     std::map<int, PriceLevel, std::greater<int>> buyMap;
 
+    // Sell
     std::map<int, PriceLevel> sellMap;
 
     // After an order is executed the first one gets put into price history.
