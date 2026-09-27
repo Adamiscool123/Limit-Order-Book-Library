@@ -13,54 +13,57 @@ void Matching_Engine::checker(Global_Variables &variables)
             return;
         }
 
-        // Make the order struct
-        Order trader = variables.TradingQueue.front();
-
-        // Create the order book for printing
-        Order_Book print_order_book;
-
-        // Pop out the front.
-
-        variables.TradingQueue.pop();
-        /*
-            While loop that checks if the traders wants to sell and buy,
-            then depending on that they match that order with an opposite order so buyer with seller and seller with buyer.
-
-            For buyer it finds the cheapest seller (buyers want the best price) and gets matched,
-
-            if they have more shares than the seller then the engine will repeat this while loop until all their shares are gone.
-
-            If they have the same shares than the seller then the engine will simply match the 2 orders and go on to the next trader.
-
-            If the buyer has less shares than the seller then the buyer will still get matched but the seller will still be in the queue
-            until all their shares are gone
-        */
-
-        bool break_loop = false;
-
-        while (trader.shares > 0 && break_loop == false)
+        while (!variables.TradingQueue.empty())
         {
-            if (trader.side == 0)
-            { // buy
-                buy(trader, variables, break_loop);
-            }
-            else
-            { // sell
-                sell(trader, variables, break_loop);
-            }
-        }
+            // Make the order struct
+            Order trader = variables.TradingQueue.front();
 
-        if (trader.shares > 0)
-        {
-            if (trader.side == 0)
+            // Create the order book for printing
+            Order_Book print_order_book;
+
+            // Pop out the front.
+
+            variables.TradingQueue.pop();
+            /*
+                While loop that checks if the traders wants to sell and buy,
+                then depending on that they match that order with an opposite order so buyer with seller and seller with buyer.
+
+                For buyer it finds the cheapest seller (buyers want the best price) and gets matched,
+
+                if they have more shares than the seller then the engine will repeat this while loop until all their shares are gone.
+
+                If they have the same shares than the seller then the engine will simply match the 2 orders and go on to the next trader.
+
+                If the buyer has less shares than the seller then the buyer will still get matched but the seller will still be in the queue
+                until all their shares are gone
+            */
+
+            bool break_loop = false;
+
+            while (trader.shares > 0 && break_loop == false)
             {
-                variables.buyMap[trader.price].orders.push_back(trader);
-                variables.buyMap[trader.price].total_shares += trader.shares;
+                if (trader.side == 0)
+                { // buy
+                    buy(trader, variables, break_loop);
+                }
+                else
+                { // sell
+                    sell(trader, variables, break_loop);
+                }
             }
-            else
+
+            if (trader.shares > 0)
             {
-                variables.sellMap[trader.price].orders.push_back(trader);
-                variables.sellMap[trader.price].total_shares += trader.shares;
+                if (trader.side == 0)
+                {
+                    variables.buyMap[trader.price].orders.push_back(trader);
+                    variables.buyMap[trader.price].total_shares += trader.shares;
+                }
+                else
+                {
+                    variables.sellMap[trader.price].orders.push_back(trader);
+                    variables.sellMap[trader.price].total_shares += trader.shares;
+                }
             }
         }
     }
