@@ -36,7 +36,7 @@ $100 - 5 shares
 $100 - 6 shares
 
 For prices with 100:
- 
+
 [5, 6]
 
 
