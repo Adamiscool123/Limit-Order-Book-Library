@@ -10,7 +10,7 @@
 
     Limit Order = 0
 
-    Marekt Order = 1
+    Market Order = 1
 
     Print: Yes = 0
 

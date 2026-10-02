@@ -54,12 +54,12 @@ void Matching_Engine::checker(Global_Variables &variables)
 
             if (trader.shares > 0)
             {
-                if (trader.side == 0)
+                if (trader.side == 0 && trader.order_type == 0)
                 {
                     variables.buyMap[trader.price].orders.push_back(trader);
                     variables.buyMap[trader.price].total_shares += trader.shares;
                 }
-                else
+                else if (trader.side == 1 && trader.order_type == 0)
                 {
                     variables.sellMap[trader.price].orders.push_back(trader);
                     variables.sellMap[trader.price].total_shares += trader.shares;
