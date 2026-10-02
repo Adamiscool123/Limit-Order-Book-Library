@@ -55,7 +55,7 @@ void manual::trade(int price, int shares, int buy_sell, int limit_market_order, 
     Order trader;
     Matching_Engine Engine;
 
-    if (shares < 0 || price < 0 || buy_sell != 0 || buy_sell != 1)
+    if (shares < 0 || price < 0 || buy_sell != 0 && buy_sell != 1)
     {
         std::cout << "Invalid";
 
