@@ -15,15 +15,15 @@ void Matching_Engine::checker(Global_Variables &variables)
 
         while (!variables.TradingQueue.empty())
         {
-            // Make the order struct
+            // Make the order struct. Copy the values/contents from the first trader in the queue into the new Order Object.
             Order trader = variables.TradingQueue.front();
 
             // Create the order book for printing
             Order_Book print_order_book;
 
             // Pop out the front.
-
             variables.TradingQueue.pop();
+
             /*
                 While loop that checks if the traders wants to sell and buy,
                 then depending on that they match that order with an opposite order so buyer with seller and seller with buyer.
@@ -138,7 +138,7 @@ void Matching_Engine::sell(Order &trader, Global_Variables &variables, bool &bre
         // buyMap is ordered from highest to lowest, so begin() is the best bid.
         auto best_buy_level = variables.buyMap.begin();
 
-        // Orders at the same price are FIFO, so match the oldest buy order first.
+        // Orders at the same price are FIFO (First In First Out), so match the oldest buy order first.
         Order &best_buy_order = best_buy_level->second.orders.front();
 
         // The seller is larger: fully fill the resting buy order. The seller still

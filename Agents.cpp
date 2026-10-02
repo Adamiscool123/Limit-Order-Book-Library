@@ -55,6 +55,13 @@ void manual::trade(int price, int shares, int buy_sell, int limit_market_order, 
     Order trader;
     Matching_Engine Engine;
 
+    if (shares < 0 || price < 0 || buy_sell != 0 || buy_sell != 1)
+    {
+        std::cout << "Invalid";
+
+        return;
+    }
+
     trader.order_type = limit_market_order;
     trader.price = price;
     trader.shares = shares;
@@ -69,9 +76,10 @@ void manual::trade(int price, int shares, int buy_sell, int limit_market_order, 
     trader.timestamp = time;
 
     {
+        // locks queue
         std::lock_guard<std::mutex> lock(m.market_mutex);
         m.TradingQueue.push(trader);
-    }
+    } // auto unlocks queue here.
 
     Engine.checker(m);
 }
