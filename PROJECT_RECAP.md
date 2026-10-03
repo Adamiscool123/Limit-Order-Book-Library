@@ -4,7 +4,7 @@
 > It explains what the project is, how every file fits together, how the code actually works,
 > how to build and use it, and what the known quirks / unfinished parts are.
 >
-> Last updated: 2026-07-21
+> Last updated: 2026-10-03
 
 ---
 
@@ -80,10 +80,10 @@ struct PriceLevel {
 1. An agent (or `manual.trade(...)`) creates an `Order`, locks `market_mutex`, and pushes it onto `TradingQueue`.
 2. `Matching_Engine::checker(m)` is called (agents call it automatically after each `execute_agent()`).
 3. `checker`:
-   - Locks the mutex, pops **one** order off the queue.
+   - Locks the mutex and drains the queued orders one at a time.
    - Loops while the order still has shares:
-     - **Buy order:** if `trader.price >= best ask` (front of `sellMap`), it trades against the oldest order at the best ask. Three cases: taker bigger (pop maker, keep looping), equal (both done), taker smaller (reduce maker, done). The execution price (the maker's price) is pushed to `price_history` on every fill.
-     - **Sell order:** mirror image against the best bid (front of `buyMap`).
+     - **Buy order:** a market order, or a limit order where `trader.price >= best ask` (front of `sellMap`), trades against the oldest order at the best ask. Three cases: taker bigger (pop maker, keep looping), equal (both done), taker smaller (reduce maker, done). The execution price (the maker's price) is pushed to `price_history` on every fill.
+     - **Sell order:** mirror image against the best bid (front of `buyMap`); market orders ignore their stored price.
      - If the order can't cross (no counterparty or price not aggressive enough), the loop breaks.
    - Any **leftover shares rest in the book**: appended to the back of the `PriceLevel::orders` list at that price (this is what gives FIFO / time priority).
 4. Empty price levels are erased from the map so `begin()` is always the true best bid/ask.
@@ -174,34 +174,45 @@ print(m.price_history)   # trade prices over time
 
 ## 8. Building the project
 
-Requirements: CMake ≥ 3.10, a C++17 compiler (you use **MinGW** on Windows), internet
-access the first time (CMake `FetchContent` downloads **pybind11 v3.0.1**, chosen for
-Python 3.14 support).
+Requirements: CMake ≥ 3.14, a C++17 compiler (you use **MinGW** on Windows), internet
+access the first time (CMake `FetchContent` downloads **pybind11 v3.0.1** and
+**Google Benchmark v1.9.5**).
 
 ```powershell
-cmake -S . -B build -G "MinGW Makefiles"
+cmake -S . -B build -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release
 cmake --build build
 ```
 
 Outputs:
 - `Limit_Order_Book` — static library with the C++ logic
 - `orderbook_wrapper...pyd` — the Python module (in `build/`)
+- `benchmark_test.exe` — standalone Google Benchmark executable (in `build/`)
 
 On MinGW the runtime (libgcc/libstdc++/winpthread) is **statically linked** into the `.pyd`
 so it works without extra DLLs (see the `if(MINGW)` block in `CMakeLists.txt` — commit `48d61eb`).
 
 ---
 
-## 9. Benchmarks (from README)
+## 9. Benchmarks
 
-You wrote a benchmarking harness that measured per-order latency (ns) in three scenarios
-and exported `existing.csv` / `new.csv` / `cross.csv`. Results: **~200–350 ns typical**
-per order (median 200–300 ns), with rare outliers up to ~170 µs from OS noise.
+`benchmark.cpp` uses Google Benchmark and builds as `benchmark_test.exe`. Each fixed-book
+benchmark rebuilds a seeded market for every measured iteration, excludes setup and cleanup
+from timing, and measures complete agent execution: order generation, queue locking, and
+matching-engine processing.
 
-⚠️ **Note:** the benchmark harness source is **not in the repo right now** — the README
-describes it but there's no benchmark `.cpp` file committed. If you want to re-run the
-numbers you'll need to rewrite the harness (submit orders in a loop, time with
-`std::chrono::high_resolution_clock`, write CSV).
+Benchmark names use two arguments:
+
+```text
+Agent_Test_Fixed_Book/<setup submissions>/<timed agent executions>
+```
+
+The first argument counts deterministic noise-trader setup submissions, not guaranteed
+resting orders. The second counts agent executions in the timed batch. One market-maker
+execution submits two orders. Run repeated Release measurements with:
+
+```powershell
+.\build\benchmark_test.exe --benchmark_repetitions=5 --benchmark_report_aggregates_only=true
+```
 
 ---
 
@@ -209,27 +220,24 @@ numbers you'll need to rewrite the harness (submit orders in a loop, time with
 
 These are things to be aware of before extending the code:
 
-1. **Market orders don't exist yet.** `order_type` is stored but the matching engine never
-   checks it — everything behaves as a limit order.
+1. **Market-order reporting is minimal.** Market orders consume available opposite-side
+   liquidity and discard any unfilled remainder, but there is no fill/cancellation report.
 2. **`Order::timestamp` is meaningless.** Every agent does `start = now(); end = now();`
    back-to-back, so timestamp is ~0. FIFO ordering works anyway (it comes from list order,
    not the timestamp), but the field is effectively dead.
 3. **`Order::traded` is never set** anywhere.
 4. **`Matching_Engine::break_loop` member is unused** — a local `break_loop` in `checker()`
    is what's actually used and passed by reference.
-5. **`checker()` processes only ONE order per call.** Agents call it after each
-   `execute_agent()`, so this works out, but note the market maker pushes 2 orders and the
-   subsequent `checker` call only matches one; the second gets processed on the next cycle.
+5. **Concurrent agent execution is not fully synchronized.** Queue and matching operations
+   use `market_mutex`, but agents access `count`, `rng`, and `price_history` outside the lock.
 6. **Dead code in `trend_follower`:** the `price_history.empty()` branches can never run
    because the function returns early when history has < 5 entries.
 7. **`PriceLevel::total_shares`** is maintained by the engine but the printer recomputes
    totals by iterating orders — the two could drift; the printer's sum is the truth.
-8. **`variables.h` include guard typo:** `VARIBLES_H` (harmless, just misspelled).
-9. **No cancel/modify order support** — orders can only rest or fill.
-10. **No tests** — verification has been manual (run agents, print book, eyeball it).
-11. Recent fix (`aeb7cc4`, latest commit): agent price distributions were corrected so
-    buys/sells land on the proper side of the last price (the ranges in section 5 reflect
-    the fixed behavior).
+8. **No cancel/modify order support** — orders can only rest or fill.
+9. **No automated correctness tests** — verification has been manual and benchmark-driven.
+10. **Python STL properties are copied by automatic conversion.** In-place mutations such
+    as `m.price_history.append(...)` do not update the underlying C++ container.
 
 ---
 

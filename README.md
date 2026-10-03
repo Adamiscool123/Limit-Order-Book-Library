@@ -1,103 +1,118 @@
 # Limit Order Book Library
 
-A C++ limit order book and matching engine project built to simulate basic market microstructure concepts such as bid/ask books, order matching, partial fills, FIFO priority, and agent-driven order flow.
-
-## Overview
-
-This project implements a limit order book with a matching engine and multiple trading agent types. The goal is to model how exchange-style order books work while exploring data structures, matching logic, market simulation, and performance in C++.
-
-The codebase is split into separate components for:
-
-- order book management
-- matching engine logic
-- shared/global market state
-- manual and automated trading agents
-- benchmark/testing utilities
+A C++17 limit order book and matching-engine project for exploring price-time priority, partial fills, market simulation, Python bindings, and performance measurement.
 
 ## Features
 
-Current supported functionality:
-
 - Buy and sell orders
-- Limit order submission
-- Basic matching engine
-- Partial fills
-- FIFO handling for equal-priced orders
-- Manual order entry
-- Agent-based order generation
-- CSV latency benchmark output
+- Limit and market order handling
+- Price priority through sorted maps
+- FIFO priority within each price level
+- Exact and partial fills across multiple orders
+- Manual, market-maker, noise-trader, trend-follower, and whale agents
+- Python bindings through pybind11
+- Google Benchmark performance harness
 
-Agent types currently included:
-
-- Manual trader
-- Market maker
-- Noise trader
-- Trend follower
-- Whale
-
-## Benchmarking and Testing
-
-I added a small benchmarking harness to measure order submission latency under different order book scenarios. The benchmark records per-order latency in nanoseconds and exports the results to CSV files for analysis.
-
-The benchmark currently tests three scenarios:
-
-1. **Existing price level orders**  
-   Orders are submitted at price levels that already exist in the book.
-
-2. **New price level orders**  
-   Orders are submitted outside the existing bid/ask ranges, creating new price levels.
-
-3. **Crossing orders**  
-   Orders are submitted aggressively enough to cross the spread and trigger matching.
-
-Each benchmark records:
-
-- latency in nanoseconds
-- order price
-- order quantity
-- side: buy or sell
-- current bid-side book length
-- current ask-side book length
-- whether the order crossed the book
-- whether the order created a new price level
-
-The benchmark functions generate `existing.csv`, `new.csv`, and `cross.csv` from the C++ test harness. The harness uses `std::chrono::high_resolution_clock` for timing and writes each measured order event to CSV. :contentReference[oaicite:0]{index=0}
-
-## Benchmark Results
-
-Current benchmark results:
-
-| Scenario | Mean Latency | Median | 90% | 95% | 99% | 99.5% | Max |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| Existing price level | 349.617 ns | 300 ns | 400 ns | 500 ns | 700 ns | 800 ns | 167,000 ns |
-| New price level | 254.433 ns | 200 ns | 300 ns | 300 ns | 400 ns | 500 ns | 89,100 ns |
-| Crossing order | 209.795 ns | 200 ns | 300 ns | 300 ns | 400 ns | 400 ns | 170,900 ns |
-
-These results suggest that the typical order processing latency is in the low hundreds of nanoseconds for the tested scenarios, with occasional large outliers likely caused by system scheduling, cache effects, memory allocation, or OS noise.
-
-## Why I Built This
-
-I built this project to learn more about:
-
-- market microstructure
-- exchange matching engines
-- order book design
-- C++ systems programming
-- algorithmic trading infrastructure
-- latency measurement and benchmarking
-
-This project started as a learning project and is being extended into a more realistic exchange-style simulator.
-
-## Project Structure
+## Project structure
 
 ```text
 .
-├── Agents.cpp
-├── Agents.h
-├── matching_engine.cpp
-├── matching_engine.h
-├── order_book.cpp
-├── order_book.h
-├── variables.h
-├── CMakeLists.txt
-└── README.md
+|-- Agents.cpp              Automated and manual trading agents
+|-- Agents.h
+|-- benchmark.cpp           Google Benchmark harness
+|-- matching_engine.cpp     Queue draining and order matching
+|-- matching_engine.h
+|-- order_book.cpp          Console order-book display
+|-- order_book.h
+|-- python_bindings.cpp     pybind11 module definitions
+|-- variables.h             Orders, price levels, and shared market state
+|-- CMakeLists.txt
+|-- PROJECT_RECAP.md        Detailed design and maintenance notes
+`-- README.md
+```
+
+## Building
+
+Requirements:
+
+- CMake 3.14 or newer
+- A C++17 compiler
+- Python development files for the Python module
+- Internet access during the first configuration, when CMake downloads pinned pybind11 and Google Benchmark releases
+
+Configure and build an optimized MinGW release on Windows:
+
+```powershell
+cmake -S . -B build -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release
+cmake --build build
+```
+
+The build produces:
+
+- `Limit_Order_Book`: static C++ library
+- `orderbook_wrapper...pyd`: Python extension module
+- `benchmark_test.exe`: standalone benchmark executable
+
+## Python usage
+
+Run from the build directory or add it to `sys.path`:
+
+```python
+import orderbook_wrapper as ob
+
+market = ob.GlobalVariables()
+maker = ob.MarketMaker(market)
+noise = ob.NoiseTrader(market)
+book = ob.Order_Book()
+
+maker.execute()
+noise.loop(100)
+book.printer(market)
+```
+
+## Benchmark methodology
+
+`benchmark.cpp` measures complete agent execution, including order generation, queue insertion, locking, and matching-engine processing. Every measured batch starts from a freshly rebuilt market with a fixed RNG seed. Book construction and cleanup occur while Google Benchmark timing is paused.
+
+Benchmark names contain two arguments:
+
+```text
+Agent_Test_Fixed_Book/<setup submissions>/<timed agent executions>
+```
+
+For example:
+
+```text
+Noise_Trader_Test_Fixed_Book/100/1000
+```
+
+This performs 100 deterministic noise-trader setup submissions, then measures a batch of 1,000 noise-trader executions.
+
+Important interpretation details:
+
+- The first argument counts setup submissions, not guaranteed resting orders. Compatible setup orders may match.
+- The second argument counts agent executions in the timed batch.
+- One market-maker execution submits two orders: one bid and one ask.
+- Google Benchmark reports time per batch. Divide by the second argument for time per agent execution, accounting for the market maker's two orders when calculating per-order throughput.
+- The book is identical at the beginning of every measured batch but evolves during that batch.
+
+Run repeated measurements:
+
+```powershell
+.\build\benchmark_test.exe --benchmark_repetitions=5 --benchmark_report_aggregates_only=true
+```
+
+Latency results are meaningful only when compared using the same compiler optimization, hardware, operating-system conditions, and benchmark methodology.
+
+## Current limitations
+
+- No cancel or modify-order support
+- No fill/cancellation report for market-order remainders
+- No automated correctness-test target yet
+- `timestamp` and `traded` are not fully implemented
+- Concurrent agents access some shared state outside `market_mutex`; treat the current implementation as primarily single-threaded
+- The Python STL bindings expose converted containers, so in-place Python mutations may operate on copies
+
+## Purpose
+
+This is a learning project for market microstructure, exchange matching, C++ data structures, concurrency, Python interoperability, and responsible performance benchmarking. It is not intended to represent a production exchange.
