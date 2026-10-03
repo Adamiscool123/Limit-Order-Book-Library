@@ -211,8 +211,12 @@ resting orders. The second counts agent executions in the timed batch. One marke
 execution submits two orders. Run repeated Release measurements with:
 
 ```powershell
-.\build\benchmark_test.exe --benchmark_repetitions=5 --benchmark_report_aggregates_only=true
+.\build\benchmark_test.exe --benchmark_min_time=1x --benchmark_repetitions=5 --benchmark_report_aggregates_only=true
 ```
+
+The `1x` setting prevents Google Benchmark from automatically repeating each full
+batch and its paused setup work many times. The batch sizes already provide the
+repetition needed for the large cases.
 
 ---
 

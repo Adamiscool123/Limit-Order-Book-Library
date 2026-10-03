@@ -93,14 +93,43 @@ Important interpretation details:
 - The first argument counts setup submissions, not guaranteed resting orders. Compatible setup orders may match.
 - The second argument counts agent executions in the timed batch.
 - One market-maker execution submits two orders: one bid and one ask.
+- A trend-follower execution submits nothing while fewer than five entries exist in `price_history`; very small setup cases can therefore measure its early-return path.
 - Google Benchmark reports time per batch. Divide by the second argument for time per agent execution, accounting for the market maker's two orders when calculating per-order throughput.
 - The book is identical at the beginning of every measured batch but evolves during that batch.
 
 Run repeated measurements:
 
 ```powershell
-.\build\benchmark_test.exe --benchmark_repetitions=5 --benchmark_report_aggregates_only=true
+.\build\benchmark_test.exe --benchmark_min_time=1x --benchmark_repetitions=5 --benchmark_report_aggregates_only=true
 ```
+
+The explicit `1x` is important here. Each benchmark iteration already executes a
+batch of up to 10,000 agent actions, and rebuilding the setup market for Google's
+automatic calibration would make the complete matrix unnecessarily slow.
+
+### Sample results
+
+The following results were recorded on 2026-10-03 using the MinGW 16.1.0
+compiler, a CMake `Release` build, and Windows on a 24-logical-CPU system. They
+show the median wall-clock time for 10,000 timed agent executions after 1,000
+deterministic setup submissions:
+
+| Agent | Median batch time | Time per agent execution | Agent executions/second |
+|---|---:|---:|---:|
+| Noise trader | 2.352 ms | 235 ns | 4.25 million |
+| Whale | 1.687 ms | 169 ns | 5.93 million |
+| Market maker | 3.318 ms | 332 ns | 3.01 million |
+| Trend follower | 1.735 ms | 173 ns | 5.76 million |
+
+One market-maker execution creates two orders, so its result is approximately
+166 ns per submitted order, or 6.03 million submitted orders per second. These
+figures measure the complete agent-and-matcher path, not the matching engine in
+isolation.
+
+With `--benchmark_min_time=1x`, the Windows CPU-time values in this run were too
+coarsely resolved and frequently appeared as zero. The table therefore uses the
+wall-clock `Time` medians. Small 10- and 100-execution batches were much noisier
+than the 10,000-execution batches and are not used for the headline figures.
 
 Latency results are meaningful only when compared using the same compiler optimization, hardware, operating-system conditions, and benchmark methodology.
 
