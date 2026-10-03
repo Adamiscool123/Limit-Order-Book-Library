@@ -19,6 +19,8 @@ static void Market_Maker_Test_Fixed_Book(benchmark::State &state)
 {
     const int count = state.range(0);
 
+    const int submitted_orders = state.range(1);
+
     for (auto _ : state)
     {
         state.PauseTiming();
@@ -37,10 +39,11 @@ static void Market_Maker_Test_Fixed_Book(benchmark::State &state)
 
             state.ResumeTiming();
 
-            t1.execute();
+            t1.loop(submitted_orders);
 
             state.PauseTiming();
         }
+
         // need to do this otherwise PauseTiming would be invalid (Can't pause time on something alr paused)
         state.ResumeTiming();
     }
@@ -50,6 +53,8 @@ static void Whale_Test_Fixed_Book(benchmark::State &state)
 {
 
     const int count = state.range(0);
+
+    const int submitted_orders = state.range(1);
 
     for (auto _ : state)
     {
@@ -69,10 +74,11 @@ static void Whale_Test_Fixed_Book(benchmark::State &state)
 
             state.ResumeTiming();
 
-            t1.execute();
+            t1.loop(submitted_orders);
 
             state.PauseTiming();
         }
+
         // need to do this otherwise PauseTiming would be invalid (Can't pause time on something alr paused)
         state.ResumeTiming();
     }
@@ -82,6 +88,8 @@ static void Trend_Follower_Test_Fixed_Book(benchmark::State &state)
 {
 
     const int count = state.range(0);
+
+    const int submitted_orders = state.range(1);
 
     for (auto _ : state)
     {
@@ -101,10 +109,11 @@ static void Trend_Follower_Test_Fixed_Book(benchmark::State &state)
 
             state.ResumeTiming();
 
-            t1.execute();
+            t1.loop(submitted_orders);
 
             state.PauseTiming();
         }
+
         // need to do this otherwise PauseTiming would be invalid (Can't pause time on something alr paused)
         state.ResumeTiming();
     }
@@ -114,6 +123,8 @@ static void Noise_Trader_Test_Fixed_Book(benchmark::State &state)
 {
 
     const int count = state.range(0);
+
+    const int submitted_orders = state.range(1);
 
     for (auto _ : state)
     {
@@ -133,32 +144,96 @@ static void Noise_Trader_Test_Fixed_Book(benchmark::State &state)
 
             state.ResumeTiming();
 
-            t1.execute();
+            t1.loop(submitted_orders);
 
             state.PauseTiming();
         }
+
         // need to do this otherwise PauseTiming would be invalid (Can't pause time on something alr paused)
         state.ResumeTiming();
     }
 }
 
 // 2. Register the benchmark
-BENCHMARK(Noise_Trader_Test_Fixed_Book)->Arg(10);
-BENCHMARK(Noise_Trader_Test_Fixed_Book)->Arg(100);
-BENCHMARK(Noise_Trader_Test_Fixed_Book)->Arg(1000);
-BENCHMARK(Noise_Trader_Test_Fixed_Book)->Arg(10000);
-BENCHMARK(Whale_Test_Fixed_Book)->Arg(10);
-BENCHMARK(Whale_Test_Fixed_Book)->Arg(100);
-BENCHMARK(Whale_Test_Fixed_Book)->Arg(1000);
-BENCHMARK(Whale_Test_Fixed_Book)->Arg(10000);
-BENCHMARK(Market_Maker_Test_Fixed_Book)->Arg(10);
-BENCHMARK(Market_Maker_Test_Fixed_Book)->Arg(100);
-BENCHMARK(Market_Maker_Test_Fixed_Book)->Arg(1000);
-BENCHMARK(Market_Maker_Test_Fixed_Book)->Arg(10000);
-BENCHMARK(Trend_Follower_Test_Fixed_Book)->Arg(10);
-BENCHMARK(Trend_Follower_Test_Fixed_Book)->Arg(100);
-BENCHMARK(Trend_Follower_Test_Fixed_Book)->Arg(1000);
-BENCHMARK(Trend_Follower_Test_Fixed_Book)->Arg(10000);
+BENCHMARK(Noise_Trader_Test_Fixed_Book)->Args({10, 10});
+BENCHMARK(Noise_Trader_Test_Fixed_Book)->Args({10, 100});
+BENCHMARK(Noise_Trader_Test_Fixed_Book)->Args({10, 1000});
+BENCHMARK(Noise_Trader_Test_Fixed_Book)->Args({10, 10000});
+
+BENCHMARK(Noise_Trader_Test_Fixed_Book)->Args({100, 10});
+BENCHMARK(Noise_Trader_Test_Fixed_Book)->Args({100, 100});
+BENCHMARK(Noise_Trader_Test_Fixed_Book)->Args({100, 1000});
+BENCHMARK(Noise_Trader_Test_Fixed_Book)->Args({100, 10000});
+
+BENCHMARK(Noise_Trader_Test_Fixed_Book)->Args({1000, 10});
+BENCHMARK(Noise_Trader_Test_Fixed_Book)->Args({1000, 100});
+BENCHMARK(Noise_Trader_Test_Fixed_Book)->Args({1000, 1000});
+BENCHMARK(Noise_Trader_Test_Fixed_Book)->Args({1000, 10000});
+
+BENCHMARK(Noise_Trader_Test_Fixed_Book)->Args({10000, 10});
+BENCHMARK(Noise_Trader_Test_Fixed_Book)->Args({10000, 100});
+BENCHMARK(Noise_Trader_Test_Fixed_Book)->Args({10000, 1000});
+BENCHMARK(Noise_Trader_Test_Fixed_Book)->Args({10000, 10000});
+
+BENCHMARK(Whale_Test_Fixed_Book)->Args({10, 10});
+BENCHMARK(Whale_Test_Fixed_Book)->Args({10, 100});
+BENCHMARK(Whale_Test_Fixed_Book)->Args({10, 1000});
+BENCHMARK(Whale_Test_Fixed_Book)->Args({10, 10000});
+
+BENCHMARK(Whale_Test_Fixed_Book)->Args({100, 10});
+BENCHMARK(Whale_Test_Fixed_Book)->Args({100, 100});
+BENCHMARK(Whale_Test_Fixed_Book)->Args({100, 1000});
+BENCHMARK(Whale_Test_Fixed_Book)->Args({100, 10000});
+
+BENCHMARK(Whale_Test_Fixed_Book)->Args({1000, 10});
+BENCHMARK(Whale_Test_Fixed_Book)->Args({1000, 100});
+BENCHMARK(Whale_Test_Fixed_Book)->Args({1000, 1000});
+BENCHMARK(Whale_Test_Fixed_Book)->Args({1000, 10000});
+
+BENCHMARK(Whale_Test_Fixed_Book)->Args({10000, 10});
+BENCHMARK(Whale_Test_Fixed_Book)->Args({10000, 100});
+BENCHMARK(Whale_Test_Fixed_Book)->Args({10000, 1000});
+BENCHMARK(Whale_Test_Fixed_Book)->Args({10000, 10000});
+
+BENCHMARK(Market_Maker_Test_Fixed_Book)->Args({10, 10});
+BENCHMARK(Market_Maker_Test_Fixed_Book)->Args({10, 100});
+BENCHMARK(Market_Maker_Test_Fixed_Book)->Args({10, 1000});
+BENCHMARK(Market_Maker_Test_Fixed_Book)->Args({10, 10000});
+
+BENCHMARK(Market_Maker_Test_Fixed_Book)->Args({100, 10});
+BENCHMARK(Market_Maker_Test_Fixed_Book)->Args({100, 100});
+BENCHMARK(Market_Maker_Test_Fixed_Book)->Args({100, 1000});
+BENCHMARK(Market_Maker_Test_Fixed_Book)->Args({100, 10000});
+
+BENCHMARK(Market_Maker_Test_Fixed_Book)->Args({1000, 10});
+BENCHMARK(Market_Maker_Test_Fixed_Book)->Args({1000, 100});
+BENCHMARK(Market_Maker_Test_Fixed_Book)->Args({1000, 1000});
+BENCHMARK(Market_Maker_Test_Fixed_Book)->Args({1000, 10000});
+
+BENCHMARK(Market_Maker_Test_Fixed_Book)->Args({10000, 10});
+BENCHMARK(Market_Maker_Test_Fixed_Book)->Args({10000, 100});
+BENCHMARK(Market_Maker_Test_Fixed_Book)->Args({10000, 1000});
+BENCHMARK(Market_Maker_Test_Fixed_Book)->Args({10000, 10000});
+
+BENCHMARK(Trend_Follower_Test_Fixed_Book)->Args({10, 10});
+BENCHMARK(Trend_Follower_Test_Fixed_Book)->Args({10, 100});
+BENCHMARK(Trend_Follower_Test_Fixed_Book)->Args({10, 1000});
+BENCHMARK(Trend_Follower_Test_Fixed_Book)->Args({10, 10000});
+
+BENCHMARK(Trend_Follower_Test_Fixed_Book)->Args({100, 10});
+BENCHMARK(Trend_Follower_Test_Fixed_Book)->Args({100, 100});
+BENCHMARK(Trend_Follower_Test_Fixed_Book)->Args({100, 1000});
+BENCHMARK(Trend_Follower_Test_Fixed_Book)->Args({100, 10000});
+
+BENCHMARK(Trend_Follower_Test_Fixed_Book)->Args({1000, 10});
+BENCHMARK(Trend_Follower_Test_Fixed_Book)->Args({1000, 100});
+BENCHMARK(Trend_Follower_Test_Fixed_Book)->Args({1000, 1000});
+BENCHMARK(Trend_Follower_Test_Fixed_Book)->Args({1000, 10000});
+
+BENCHMARK(Trend_Follower_Test_Fixed_Book)->Args({10000, 10});
+BENCHMARK(Trend_Follower_Test_Fixed_Book)->Args({10000, 100});
+BENCHMARK(Trend_Follower_Test_Fixed_Book)->Args({10000, 1000});
+BENCHMARK(Trend_Follower_Test_Fixed_Book)->Args({10000, 10000});
 
 // 3. Generate the main() function
 BENCHMARK_MAIN();
