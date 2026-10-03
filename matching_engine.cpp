@@ -72,7 +72,7 @@ void Matching_Engine::checker(Global_Variables &variables)
 void Matching_Engine::buy(Order &trader, Global_Variables &variables, bool &break_loop)
 {
     // A buy can trade only if its price reaches the cheapest available sell price.
-    if (!variables.sellMap.empty() && (trader.order_type == 0 || trader.price >= variables.sellMap.begin()->first))
+    if (!variables.sellMap.empty() && (trader.order_type == 1 || trader.price >= variables.sellMap.begin()->first))
     {
 
         // sellMap is ordered from lowest to highest, so begin() is the best ask.
@@ -132,7 +132,7 @@ void Matching_Engine::buy(Order &trader, Global_Variables &variables, bool &brea
 void Matching_Engine::sell(Order &trader, Global_Variables &variables, bool &break_loop)
 {
     // A sell can trade only if its price reaches the highest available buy price.
-    if (!variables.buyMap.empty() && (trader.order_type == 0 || trader.price <= variables.buyMap.begin()->first))
+    if (!variables.buyMap.empty() && (trader.order_type == 1 || trader.price <= variables.buyMap.begin()->first))
     {
 
         // buyMap is ordered from highest to lowest, so begin() is the best bid.
