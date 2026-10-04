@@ -237,5 +237,10 @@ int main(void)
         incoming_seller_smaller_than_resting_buyer(v);
     }
 
+    {
+        Global_Variables v;
+        market_sell_remainder(v);
+    }
+
     return 0;
 }
