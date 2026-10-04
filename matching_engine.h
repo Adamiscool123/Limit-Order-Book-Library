@@ -3,16 +3,14 @@
 
 #include "variables.h"
 
-class Matching_Engine {
-protected:
-    bool break_loop;
+class Matching_Engine
+{
 public:
+    void checker(Global_Variables &m);
 
-    void checker(Global_Variables& m);
+    void buy(Order &trader, Global_Variables &m, bool &break_loop);
 
-    void buy(Order& trader, Global_Variables& m, bool& break_loop);
-
-    void sell(Order& trader, Global_Variables& m, bool& break_loop);
+    void sell(Order &trader, Global_Variables &m, bool &break_loop);
 };
 
 #endif
