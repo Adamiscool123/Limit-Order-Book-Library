@@ -25,6 +25,7 @@ A C++17 limit order book and matching-engine project for exploring price-time pr
 |-- order_book.cpp          Console order-book display
 |-- order_book.h
 |-- python_bindings.cpp     pybind11 module definitions
+|-- test.cpp                Matching-engine correctness tests
 |-- variables.h             Orders, price levels, and shared market state
 |-- CMakeLists.txt
 |-- PROJECT_RECAP.md        Detailed design and maintenance notes
@@ -52,6 +53,7 @@ The build produces:
 - `Limit_Order_Book`: static C++ library
 - `orderbook_wrapper...pyd`: Python extension module
 - `benchmark_test.exe`: standalone benchmark executable
+- `orderbook_tests.exe`: correctness-test executable
 
 ## Python usage
 
@@ -69,6 +71,22 @@ maker.execute()
 noise.loop(100)
 book.printer(market)
 ```
+
+## Testing
+
+The correctness suite covers empty-book insertion, crossing and non-crossing
+limits, exact and partial fills, multiple price levels, FIFO priority, and
+unfilled market-order remainders in both directions.
+
+Build and run it through CTest:
+
+```powershell
+cmake --build build --target orderbook_tests
+ctest --test-dir build --output-on-failure
+```
+
+Assertions are kept active for this target even when the rest of the project is
+built in Release mode.
 
 ## Benchmark methodology
 
@@ -137,7 +155,6 @@ Latency results are meaningful only when compared using the same compiler optimi
 
 - No cancel or modify-order support
 - No fill/cancellation report for market-order remainders
-- No automated correctness-test target yet
 - `timestamp` and `traded` are not fully implemented
 - Concurrent agents access some shared state outside `market_mutex`; treat the current implementation as primarily single-threaded
 - The Python STL bindings expose converted containers, so in-place Python mutations may operate on copies

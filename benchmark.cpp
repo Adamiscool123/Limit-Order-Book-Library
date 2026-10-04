@@ -154,6 +154,32 @@ static void Noise_Trader_Test_Fixed_Book(benchmark::State &state)
     }
 }
 
+static void empty_book(benchmark::State &state)
+{
+    for (auto _ : state)
+    {
+        state.PauseTiming();
+
+        {
+            Global_Variables v;
+
+            v.seed = 12345;
+
+            v.rng.seed(v.seed);
+
+            manual trader(v);
+
+            state.ResumeTiming();
+
+            trader.trade(100, 5, 0, 0, v);
+
+            state.PauseTiming();
+        }
+
+        state.ResumeTiming();
+    }
+}
+
 // 2. Register the benchmark
 BENCHMARK(Noise_Trader_Test_Fixed_Book)->Args({10, 10});
 BENCHMARK(Noise_Trader_Test_Fixed_Book)->Args({10, 100});

@@ -34,7 +34,9 @@ There is **no `main.cpp`** — the project builds as a **library** (`Limit_Order
 | `order_book.h/.cpp` | `Order_Book` class — just **printing/display** of the book to the console (despite the name, it holds no data) |
 | `Agents.h/.cpp` | `Agent_Base` and the 5 agent types (manual, market maker, noise trader, trend follower, whale) |
 | `python_bindings.cpp` | pybind11 wrapper exposing everything to Python as module `orderbook_wrapper` |
-| `CMakeLists.txt` | Builds the static library + the Python module; auto-downloads pybind11 v3.0.1 |
+| `benchmark.cpp` | Google Benchmark performance harness |
+| `test.cpp` | Deterministic matching-engine correctness tests |
+| `CMakeLists.txt` | Builds the library, Python module, benchmark, and tests; downloads pinned dependencies |
 | `README.md` | Public-facing description + benchmark results table |
 | `build/` | CMake build output (generated; contains the compiled `.pyd`) |
 
@@ -47,7 +49,7 @@ struct Order {
     int side;         // 0 = BUY, 1 = SELL
     int price;        // integer price (whole dollars)
     int shares;       // remaining quantity
-    int order_type;   // 0 = limit, 1 = market  (currently always 0 — market orders not implemented)
+    int order_type;   // 0 = limit, 1 = market
     int order_id;     // taken from Global_Variables::count, then count++
     long long timestamp;
     bool traded = false;   // currently never set anywhere
@@ -187,13 +189,30 @@ Outputs:
 - `Limit_Order_Book` — static library with the C++ logic
 - `orderbook_wrapper...pyd` — the Python module (in `build/`)
 - `benchmark_test.exe` — standalone Google Benchmark executable (in `build/`)
+- `orderbook_tests.exe` — correctness-test executable (in `build/`)
 
 On MinGW the runtime (libgcc/libstdc++/winpthread) is **statically linked** into the `.pyd`
 so it works without extra DLLs (see the `if(MINGW)` block in `CMakeLists.txt` — commit `48d61eb`).
 
 ---
 
-## 9. Benchmarks
+## 9. Correctness tests
+
+`test.cpp` covers empty-book insertion, crossing and non-crossing limit orders,
+exact and partial fills, multiple price levels, FIFO priority, and unfilled
+market-order remainders in both directions. CTest runs it with:
+
+```powershell
+cmake --build build --target orderbook_tests
+ctest --test-dir build --output-on-failure
+```
+
+The CMake target explicitly keeps standard `assert()` checks active in Release
+builds.
+
+---
+
+## 10. Benchmarks
 
 `benchmark.cpp` uses Google Benchmark and builds as `benchmark_test.exe`. Each fixed-book
 benchmark rebuilds a seeded market for every measured iteration, excludes setup and cleanup
@@ -220,7 +239,7 @@ repetition needed for the large cases.
 
 ---
 
-## 10. Known quirks / unfinished things (honest list)
+## 11. Known quirks / unfinished things (honest list)
 
 These are things to be aware of before extending the code:
 
@@ -239,16 +258,14 @@ These are things to be aware of before extending the code:
 7. **`PriceLevel::total_shares`** is maintained by the engine but the printer recomputes
    totals by iterating orders — the two could drift; the printer's sum is the truth.
 8. **No cancel/modify order support** — orders can only rest or fill.
-9. **No automated correctness tests** — verification has been manual and benchmark-driven.
-10. **Python STL properties are copied by automatic conversion.** In-place mutations such
+9. **Python STL properties are copied by automatic conversion.** In-place mutations such
     as `m.price_history.append(...)` do not update the underlying C++ container.
 
 ---
 
-## 11. Ideas that were on the table for "next steps"
+## 12. Ideas that were on the table for "next steps"
 
-- Re-add / rewrite the latency benchmark harness (README section 9)
-- Implement real market orders (honor `order_type == 1`: match at any price)
+- Expand tests to cover invalid inputs and deterministic agent behavior
 - Order cancellation + order lookup by `order_id`
 - Set `traded` flag and give trades real timestamps
 - Multi-threaded simulation using `infinite_loop()` with one thread per agent

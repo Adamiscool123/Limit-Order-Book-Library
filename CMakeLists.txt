@@ -44,8 +44,27 @@ target_link_libraries(orderbook_wrapper PRIVATE Limit_Order_Book)
 add_executable(benchmark_test benchmark.cpp)
 target_link_libraries(benchmark_test PRIVATE Limit_Order_Book benchmark::benchmark)
 
+# 6. Build and register the correctness-test executable.
+include(CTest)
+if(BUILD_TESTING)
+    add_executable(orderbook_tests test.cpp)
+    target_link_libraries(orderbook_tests PRIVATE Limit_Order_Book)
+
+    # Keep standard assert() checks enabled when the project is built in Release mode.
+    if(MSVC)
+        target_compile_options(orderbook_tests PRIVATE /UNDEBUG)
+    else()
+        target_compile_options(orderbook_tests PRIVATE -UNDEBUG)
+    endif()
+
+    add_test(NAME orderbook_tests COMMAND orderbook_tests)
+endif()
+
 # Statically link MinGW runtime so the .pyd has no libgcc/libstdc++ DLL dependencies
 if(MINGW)
     target_link_options(orderbook_wrapper PRIVATE -static-libgcc -static-libstdc++ -Wl,-Bstatic,--whole-archive -lwinpthread -Wl,--no-whole-archive)
     target_link_options(benchmark_test PRIVATE -static-libgcc -static-libstdc++)
+    if(TARGET orderbook_tests)
+        target_link_options(orderbook_tests PRIVATE -static-libgcc -static-libstdc++)
+    endif()
 endif()
