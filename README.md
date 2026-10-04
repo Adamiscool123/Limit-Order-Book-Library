@@ -161,4 +161,4 @@ Latency results are meaningful only when compared using the same compiler optimi
 
 ## Purpose
 
-This is a learning project for market microstructure, exchange matching, C++ data structures, concurrency, Python interoperability, and responsible performance benchmarking. It is not intended to represent a production exchange.
+This is a learning project for market microstructure, exchange matching, C++ data structures, concurrency, and responsible performance benchmarking.
