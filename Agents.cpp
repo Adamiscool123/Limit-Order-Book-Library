@@ -135,15 +135,7 @@ void market_maker::execute_agent()
             trader.shares = share(variable.rng);
         }
 
-        // 1. Record start/end for Task A
-        auto start = steady_clock::now();
-        // ... code for A ...
-        auto end = steady_clock::now();
-
-        // 3. Convert to long long integers (nanoseconds)
-        long long time = duration_cast<nanoseconds>(end - start).count();
-
-        trader.timestamp = time;
+        trader.timestamp = duration_cast<nanoseconds>(steady_clock::now().time_since_epoch()).count();
 
         std::lock_guard<std::mutex> lock(variable.market_mutex);
 
@@ -209,15 +201,7 @@ void noise_trader::execute_agent()
         trader.shares = share(variable.rng);
     }
 
-    // 1. Record start/end for Task A
-    auto start = steady_clock::now();
-    // ... code for A ...
-    auto end = steady_clock::now();
-
-    // 3. Convert to long long integers (nanoseconds)
-    long long time = duration_cast<nanoseconds>(end - start).count();
-
-    trader.timestamp = time;
+    trader.timestamp = duration_cast<nanoseconds>(steady_clock::now().time_since_epoch()).count();
 
     std::lock_guard<std::mutex> lock(variable.market_mutex);
 
@@ -293,15 +277,7 @@ void trend_follower::execute_agent()
         trader.shares = share(variable.rng);
     }
 
-    // 1. Record start/end for Task A
-    auto start = steady_clock::now();
-    // ... code for A ...
-    auto end = steady_clock::now();
-
-    // 3. Convert to long long integers (nanoseconds)
-    long long time = duration_cast<nanoseconds>(end - start).count();
-
-    trader.timestamp = time;
+    trader.timestamp = duration_cast<nanoseconds>(steady_clock::now().time_since_epoch()).count();
 
     std::lock_guard<std::mutex> lock(variable.market_mutex);
 
@@ -363,15 +339,7 @@ void whale::execute_agent()
         trader.shares = share(variable.rng);
     }
 
-    // 1. Record start/end for Task A
-    auto start = steady_clock::now();
-    // ... code for A ...
-    auto end = steady_clock::now();
-
-    // 3. Convert to long long integers (nanoseconds)
-    long long time = duration_cast<nanoseconds>(end - start).count();
-
-    trader.timestamp = time;
+    trader.timestamp = duration_cast<nanoseconds>(steady_clock::now().time_since_epoch()).count();
 
     std::lock_guard<std::mutex> lock(variable.market_mutex);
 
