@@ -4,7 +4,7 @@
 > It explains what the project is, how every file fits together, how the code actually works,
 > how to build and use it, and what the known quirks / unfinished parts are.
 >
-> Last updated: 2026-10-03
+> Last updated: 2026-10-05
 
 ---
 
@@ -45,11 +45,14 @@ There is **no `main.cpp`** — the project builds as a **library** (`Limit_Order
 ## 3. Core data structures (`variables.h`)
 
 ```cpp
+enum class Side { Buy, Sell };
+enum class OrderType { Limit, Market };
+
 struct Order {
-    int side;         // 0 = BUY, 1 = SELL
-    int price;        // integer price (whole dollars)
-    int shares;       // remaining quantity
-    int order_type;   // 0 = limit, 1 = market
+    Side side;              // Side::Buy or Side::Sell
+    int price;              // integer price (whole dollars)
+    int shares;             // remaining quantity
+    OrderType order_type;   // OrderType::Limit or OrderType::Market
     int order_id;     // taken from Global_Variables::count, then count++
     long long timestamp;
     bool traded = false;   // currently never set anywhere
@@ -72,8 +75,10 @@ struct PriceLevel {
 - `count` — global counter used to hand out order IDs
 - `rng` — `std::mt19937` seeded from the system clock; all agents draw randomness from it
 
-**Key convention used everywhere (documented at top of `Agents.cpp`):**
-`side: 0 = buy, 1 = sell` • `order_type: 0 = limit, 1 = market`
+**Side and order type are `enum class` values, not plain ints.** Write `Side::Buy` /
+`Side::Sell` and `OrderType::Limit` / `OrderType::Market`. The compiler rejects plain
+numbers like `0` or `1`, so an invalid side or order type can't be created, and
+`trade()` no longer needs to validate them at runtime.
 
 ---
 
@@ -108,13 +113,13 @@ Each subclass overrides `execute_agent()`:
 
 | Agent | Behavior |
 |---|---|
-| **manual** | `execute_agent()` does nothing. Instead call `trade(price, shares, buy_sell, limit_market, m)` directly to place a specific order (this is you trading by hand). |
+| **manual** | `execute_agent()` does nothing. Instead call `trade(price, shares, side, order_type, m)` directly to place a specific order (this is you trading by hand). |
 | **market_maker** | Places a **pair** of orders every run: a buy at `last_price - 1` and a sell at `last_price + 1` (i.e. quotes around the last trade), 1–10 shares each. Before any trade exists it quotes randomly around `starting_price` (buys 95–101, sells 99–105). |
 | **noise_trader** | Random side, random price within **±20% of last price** (buys below last, sells above), 1–10 shares. Provides random background flow. |
 | **trend_follower** | Needs ≥5 prices in history, otherwise does nothing. Compares last price vs 5 trades ago: price up → **buys** near last price (last−2..last), price down → **sells** (last..last+2). Big size: 100–200 shares. Momentum trader. |
 | **whale** | Random side, price within ±10 dollars of last, **100–200 shares** — a large player that moves the market. |
 
-All agent orders are limit orders (`order_type = 0`). All of them lock the mutex before
+All agent orders are limit orders (`OrderType::Limit`). All of them lock the mutex before
 pushing to the queue.
 
 ---
@@ -142,6 +147,10 @@ Module name: **`orderbook_wrapper`** (the compiled file is `orderbook_wrapper.*.
 Exposed classes: `Order`, `GlobalVariables`, `Matching_Engine`, `Order_Book`, `AgentBase`,
 `Manual`, `MarketMaker`, `NoiseTrader`, `TrendFollower`, `Whale`, `PriceLevel`.
 
+Exposed enums: `Side` (`Side.Buy`, `Side.Sell`) and `OrderType` (`OrderType.Limit`,
+`OrderType.Market`), registered with `py::enum_`. Without that registration Python can't
+pass or read these values, so `trade()` and `Order.side` wouldn't work from Python.
+
 Agent constructors take a `GlobalVariables` and use `py::keep_alive` so Python won't
 garbage-collect the market state while an agent still references it.
 
@@ -165,8 +174,8 @@ noise.loop(100)
 whale.execute()
 trend.execute()
 
-# Place your own order: price=100, 10 shares, buy(0), limit(0)
-me.trade(100, 10, 0, 0, m)
+# Place your own order: limit buy, 10 shares at $100
+me.trade(100, 10, ob.Side.Buy, ob.OrderType.Limit, m)
 
 book.printer(m)          # print the book
 print(m.price_history)   # trade prices over time
@@ -273,7 +282,7 @@ These are things to be aware of before extending the code:
 
 ---
 
-## 12. Quick mental model (TL;DR)
+## 13. Quick mental model (TL;DR)
 
 > Agents throw orders into a mutex-protected queue → the matching engine pops one at a
 > time and crosses it against the best opposite price level (sorted `std::map`s, FIFO

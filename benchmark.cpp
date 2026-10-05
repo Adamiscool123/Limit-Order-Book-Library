@@ -171,7 +171,7 @@ static void empty_book(benchmark::State &state)
 
             state.ResumeTiming();
 
-            trader.trade(100, 5, 0, 0, v);
+            trader.trade(100, 5, Side::Buy, OrderType::Limit, v);
 
             state.PauseTiming();
         }

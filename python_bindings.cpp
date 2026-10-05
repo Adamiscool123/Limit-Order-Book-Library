@@ -7,7 +7,8 @@
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(orderbook_wrapper, m) {
+PYBIND11_MODULE(orderbook_wrapper, m)
+{
     m.doc() = "Limit Order Book Python API";
 
     py::class_<Order>(m, "Order")
@@ -19,13 +20,22 @@ PYBIND11_MODULE(orderbook_wrapper, m) {
         .def_readwrite("order_id", &Order::order_id)
         .def_readwrite("traded", &Order::traded);
 
-    py::class_<Global_Variables> gv(m, "GlobalVariables");
+    py::enum_<Side>(m, "Side")
+        .value("Buy", Side::Buy)
+        .value("Sell", Side::Sell);
+
+    py::enum_<OrderType>(m, "OrderType")
+        .value("Limit", OrderType::Limit)
+        .value("Market", OrderType::Market);
+
+    py::class_<Global_Variables>
+        gv(m, "GlobalVariables");
     gv.def(py::init<>())
-    .def_readwrite("starting_price", &Global_Variables::starting_price)
-    .def_readwrite("price_history", &Global_Variables::price_history)
-    .def_readwrite("count", &Global_Variables::count)
-    .def_readwrite("buyMap", &Global_Variables::buyMap)
-    .def_readwrite("sellMap", &Global_Variables::sellMap);
+        .def_readwrite("starting_price", &Global_Variables::starting_price)
+        .def_readwrite("price_history", &Global_Variables::price_history)
+        .def_readwrite("count", &Global_Variables::count)
+        .def_readwrite("buyMap", &Global_Variables::buyMap)
+        .def_readwrite("sellMap", &Global_Variables::sellMap);
 
     py::class_<Matching_Engine>(m, "Matching_Engine")
         .def(py::init<>())
@@ -45,30 +55,28 @@ PYBIND11_MODULE(orderbook_wrapper, m) {
         .def("loop", &Agent_Base::loop);
 
     py::class_<manual, Agent_Base>(m, "Manual")
-        .def(py::init<Global_Variables&>(), py::keep_alive<1, 2>())
+        .def(py::init<Global_Variables &>(), py::keep_alive<1, 2>())
         .def("trade", &manual::trade)
         .def("execute_agent", &manual::execute_agent);
 
     py::class_<market_maker, Agent_Base>(m, "MarketMaker")
-        .def(py::init<Global_Variables&>(), py::keep_alive<1, 2>())
+        .def(py::init<Global_Variables &>(), py::keep_alive<1, 2>())
         .def("execute_agent", &market_maker::execute_agent);
 
     py::class_<noise_trader, Agent_Base>(m, "NoiseTrader")
-        .def(py::init<Global_Variables&>(), py::keep_alive<1, 2>())
+        .def(py::init<Global_Variables &>(), py::keep_alive<1, 2>())
         .def("execute_agent", &noise_trader::execute_agent);
 
     py::class_<trend_follower, Agent_Base>(m, "TrendFollower")
-        .def(py::init<Global_Variables&>(), py::keep_alive<1, 2>())
+        .def(py::init<Global_Variables &>(), py::keep_alive<1, 2>())
         .def("execute_agent", &trend_follower::execute_agent);
 
     py::class_<whale, Agent_Base>(m, "Whale")
-        .def(py::init<Global_Variables&>(), py::keep_alive<1, 2>())
+        .def(py::init<Global_Variables &>(), py::keep_alive<1, 2>())
         .def("execute_agent", &whale::execute_agent);
 
     py::class_<PriceLevel>(m, "PriceLevel")
         .def(py::init<>())
         .def_readwrite("total_shares", &PriceLevel::total_shares)
         .def_readwrite("orders", &PriceLevel::orders);
-    
-
 }

@@ -3,21 +3,6 @@
 #include "matching_engine.h"
 #include "order_book.h"
 
-/*
-    Buy = 0
-
-    Sell = 1
-
-    Limit Order = 0
-
-    Market Order = 1
-
-    Print: Yes = 0
-
-    Print : No = 1
-
-*/
-
 using namespace std::chrono;
 
 void Agent_Base::infinite_loop(int time)
@@ -50,22 +35,22 @@ void Agent_Base::loop(int times)
 
 void manual::execute_agent() {}
 
-void manual::trade(int price, int shares, int buy_sell, int limit_market_order, Global_Variables &m)
+void manual::trade(int price, int shares, Side side, OrderType order_type, Global_Variables &m)
 {
     Order trader;
     Matching_Engine Engine;
 
-    if ((shares < 0) || (price < 0) || (buy_sell != 0 && buy_sell != 1) || (limit_market_order != 0 && limit_market_order != 1) || (shares == 0))
+    if ((shares < 0) || (price < 0) || (shares == 0))
     {
         std::cout << "Invalid";
 
         return;
     }
 
-    trader.order_type = limit_market_order;
+    trader.order_type = order_type;
     trader.price = price;
     trader.shares = shares;
-    trader.side = buy_sell;
+    trader.side = side;
     trader.order_id = m.count;
 
     m.count++;
@@ -92,7 +77,7 @@ void market_maker::execute_agent()
     {
         Order trader;
 
-        trader.order_type = 0;
+        trader.order_type = OrderType::Limit;
 
         trader.order_id = variable.count;
 
@@ -100,7 +85,7 @@ void market_maker::execute_agent()
 
         if (c == 0)
         {
-            trader.side = 0;
+            trader.side = Side::Buy;
 
             if (variable.price_history.empty())
             {
@@ -118,7 +103,7 @@ void market_maker::execute_agent()
         }
         else
         {
-            trader.side = 1;
+            trader.side = Side::Sell;
 
             if (variable.price_history.empty())
             {
@@ -157,7 +142,7 @@ void noise_trader::execute_agent()
 
     Order trader;
 
-    trader.order_type = 0;
+    trader.order_type = OrderType::Limit;
 
     trader.order_id = variable.count;
 
@@ -167,9 +152,16 @@ void noise_trader::execute_agent()
 
     int buy_or_sell = dist(variable.rng);
 
-    trader.side = buy_or_sell;
+    if (buy_or_sell == 0)
+    {
+        trader.side = Side::Buy;
+    }
+    else
+    {
+        trader.side = Side::Sell;
+    }
 
-    if (trader.side == 0)
+    if (trader.side == Side::Buy)
     {
 
         if (variable.price_history.empty())
@@ -226,7 +218,7 @@ void trend_follower::execute_agent()
 {
     Order trader;
 
-    trader.order_type = 0;
+    trader.order_type = OrderType::Limit;
 
     trader.order_id = variable.count;
 
@@ -237,22 +229,16 @@ void trend_follower::execute_agent()
         return;
     }
 
-    int buy_or_sell;
-
     if (variable.price_history.back() > variable.price_history.at(variable.price_history.size() - 5))
     {
-        buy_or_sell = 0;
-
-        trader.side = buy_or_sell;
+        trader.side = Side::Buy;
     }
     else
     {
-        buy_or_sell = 1;
-
-        trader.side = buy_or_sell;
+        trader.side = Side::Sell;
     }
 
-    if (trader.side == 0)
+    if (trader.side == Side::Buy)
     {
 
         if (variable.price_history.empty())
@@ -308,7 +294,7 @@ void whale::execute_agent()
 {
     Order trader;
 
-    trader.order_type = 0;
+    trader.order_type = OrderType::Limit;
 
     trader.order_id = variable.count;
 
@@ -318,9 +304,16 @@ void whale::execute_agent()
 
     int buy_or_sell = dist(variable.rng);
 
-    trader.side = buy_or_sell;
+    if (buy_or_sell == 0)
+    {
+        trader.side = Side::Buy;
+    }
+    else
+    {
+        trader.side = Side::Sell;
+    }
 
-    if (trader.side == 0)
+    if (trader.side == Side::Buy)
     {
 
         if (variable.price_history.empty())

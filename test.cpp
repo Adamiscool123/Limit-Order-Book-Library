@@ -9,7 +9,7 @@ void empty_book(Global_Variables &v)
 {
     manual trader(v);
 
-    trader.trade(100, 5, 0, 0, v);
+    trader.trade(100, 5, Side::Buy, OrderType::Limit, v);
 
     // Strict must be true otherwise program stops with assertion failure.
     assert(v.TradingQueue.empty());
@@ -28,8 +28,8 @@ void non_crossing_limit_book(Global_Variables &v)
 {
     manual trader(v);
 
-    trader.trade(99, 5, 0, 0, v);  // Limit buy
-    trader.trade(101, 7, 1, 0, v); // Limit sell
+    trader.trade(99, 5, Side::Buy, OrderType::Limit, v);   // Limit buy
+    trader.trade(101, 7, Side::Sell, OrderType::Limit, v); // Limit sell
 
     assert(v.buyMap.count(99) == 1);
     assert(v.sellMap.count(101) == 1);
@@ -45,8 +45,8 @@ void crossing_limit_book(Global_Variables &v)
 {
     manual trader(v);
 
-    trader.trade(100, 5, 0, 0, v); // Resting buy
-    trader.trade(99, 5, 1, 0, v);  // Incoming sell
+    trader.trade(100, 5, Side::Buy, OrderType::Limit, v); // Resting buy
+    trader.trade(99, 5, Side::Sell, OrderType::Limit, v); // Incoming sell
 
     assert(v.buyMap.empty());
     assert(v.sellMap.empty());
@@ -62,8 +62,8 @@ void trader_shares_bigger_than_resting_shares(Global_Variables &v)
 {
     manual trader(v);
 
-    trader.trade(100, 4, 1, 0, v);  // Resting limit sell
-    trader.trade(101, 10, 0, 0, v); // Larger incoming limit buy
+    trader.trade(100, 4, Side::Sell, OrderType::Limit, v); // Resting limit sell
+    trader.trade(101, 10, Side::Buy, OrderType::Limit, v); // Larger incoming limit buy
 
     assert(v.TradingQueue.empty());
     assert(v.sellMap.empty());
@@ -86,10 +86,10 @@ void multiple_price_levels(Global_Variables &v)
 {
     manual trader(v);
 
-    trader.trade(100, 3, 1, 0, v);  // Limit sell: 3 shares at $100
-    trader.trade(101, 4, 1, 0, v);  // Limit sell: 4 shares at $101
-    trader.trade(103, 10, 1, 0, v); // Limit sell: 10 shares at $103
-    trader.trade(102, 10, 0, 0, v); // Limit buy: 10 shares at $102
+    trader.trade(100, 3, Side::Sell, OrderType::Limit, v);  // Limit sell: 3 shares at $100
+    trader.trade(101, 4, Side::Sell, OrderType::Limit, v);  // Limit sell: 4 shares at $101
+    trader.trade(103, 10, Side::Sell, OrderType::Limit, v); // Limit sell: 10 shares at $103
+    trader.trade(102, 10, Side::Buy, OrderType::Limit, v);  // Limit buy: 10 shares at $102
 
     assert(v.TradingQueue.empty());
 
@@ -114,9 +114,9 @@ void FIFO_Priority(Global_Variables &v)
 {
     manual trader(v);
 
-    trader.trade(100, 3, 1, 0, v); // First resting sell, order_id 0
-    trader.trade(100, 7, 1, 0, v); // Second resting sell, order_id 1
-    trader.trade(100, 5, 0, 0, v); // Incoming buy
+    trader.trade(100, 3, Side::Sell, OrderType::Limit, v); // First resting sell, order_id 0
+    trader.trade(100, 7, Side::Sell, OrderType::Limit, v); // Second resting sell, order_id 1
+    trader.trade(100, 5, Side::Buy, OrderType::Limit, v);  // Incoming buy
 
     assert(v.buyMap.empty());
 
@@ -140,8 +140,8 @@ void market_order_remainder(Global_Variables &v)
 {
     manual trader(v);
 
-    trader.trade(100, 4, 1, 0, v); // Resting limit sell
-    trader.trade(0, 10, 0, 1, v);  // Market buy; price is ignored
+    trader.trade(100, 4, Side::Sell, OrderType::Limit, v); // Resting limit sell
+    trader.trade(0, 10, Side::Buy, OrderType::Market, v);  // Market buy; price is ignored
 
     assert(v.TradingQueue.empty());
     assert(v.buyMap.empty());
@@ -158,8 +158,8 @@ void incoming_seller_smaller_than_resting_buyer(Global_Variables &v)
 {
     manual trader(v);
 
-    trader.trade(100, 10, 0, 0, v); // Resting buy
-    trader.trade(99, 4, 1, 0, v);   // Smaller incoming sell
+    trader.trade(100, 10, Side::Buy, OrderType::Limit, v); // Resting buy
+    trader.trade(99, 4, Side::Sell, OrderType::Limit, v);  // Smaller incoming sell
 
     assert(v.TradingQueue.empty());
     assert(v.sellMap.empty());
@@ -181,8 +181,8 @@ void market_sell_remainder(Global_Variables &v)
 {
     manual trader(v);
 
-    trader.trade(100, 4, 0, 0, v); // Resting limit buy
-    trader.trade(0, 10, 1, 1, v);  // Oversized market sell
+    trader.trade(100, 4, Side::Buy, OrderType::Limit, v);  // Resting limit buy
+    trader.trade(0, 10, Side::Sell, OrderType::Market, v); // Oversized market sell
 
     assert(v.TradingQueue.empty());
     assert(v.buyMap.empty());

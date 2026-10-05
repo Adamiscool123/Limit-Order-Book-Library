@@ -42,7 +42,7 @@ void Matching_Engine::checker(Global_Variables &variables)
 
             while ((trader.shares > 0) && (break_loop == false))
             {
-                if (trader.side == 0)
+                if (trader.side == Side::Buy)
                 { // buy
                     buy(trader, variables, break_loop);
                 }
@@ -54,12 +54,12 @@ void Matching_Engine::checker(Global_Variables &variables)
 
             if (trader.shares > 0)
             {
-                if ((trader.side == 0) && (trader.order_type == 0))
+                if ((trader.side == Side::Buy) && (trader.order_type == OrderType::Limit))
                 {
                     variables.buyMap[trader.price].orders.push_back(trader);
                     variables.buyMap[trader.price].total_shares += trader.shares;
                 }
-                else if ((trader.side == 1) && (trader.order_type == 0))
+                else if ((trader.side == Side::Sell) && (trader.order_type == OrderType::Limit))
                 {
                     variables.sellMap[trader.price].orders.push_back(trader);
                     variables.sellMap[trader.price].total_shares += trader.shares;
@@ -72,7 +72,7 @@ void Matching_Engine::checker(Global_Variables &variables)
 void Matching_Engine::buy(Order &trader, Global_Variables &variables, bool &break_loop)
 {
     // A buy can trade only if its price reaches the cheapest available sell price.
-    if ((!variables.sellMap.empty()) && (trader.order_type == 1 || trader.price >= variables.sellMap.begin()->first))
+    if ((!variables.sellMap.empty()) && (trader.order_type == OrderType::Market || trader.price >= variables.sellMap.begin()->first))
     {
 
         // sellMap is ordered from lowest to highest, so begin() is the best ask.
@@ -132,7 +132,7 @@ void Matching_Engine::buy(Order &trader, Global_Variables &variables, bool &brea
 void Matching_Engine::sell(Order &trader, Global_Variables &variables, bool &break_loop)
 {
     // A sell can trade only if its price reaches the highest available buy price.
-    if ((!variables.buyMap.empty()) && (trader.order_type == 1 || trader.price <= variables.buyMap.begin()->first))
+    if ((!variables.buyMap.empty()) && (trader.order_type == OrderType::Market || trader.price <= variables.buyMap.begin()->first))
     {
 
         // buyMap is ordered from highest to lowest, so begin() is the best bid.

@@ -16,13 +16,25 @@
 #include <algorithm>
 #include <functional>
 
+enum class Side
+{
+    Buy,
+    Sell
+};
+
+enum class OrderType
+{
+    Limit,
+    Market
+};
+
 // Trader order
 struct Order
 {
-    int side;
+    Side side;
     int price;
     int shares;
-    int order_type;
+    OrderType order_type;
     int order_id;
     long long timestamp;
     bool traded = false;
