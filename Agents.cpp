@@ -55,11 +55,6 @@ void manual::trade(int price, int shares, Side side, OrderType order_type, Globa
 
     m.count++;
 
-    auto start = steady_clock::now();
-    auto end = steady_clock::now();
-    long long time = duration_cast<nanoseconds>(end - start).count();
-    trader.timestamp = time;
-
     {
         // locks queue
         std::lock_guard<std::mutex> lock(m.market_mutex);
@@ -126,8 +121,6 @@ void market_maker::execute_agent()
             duration_cast<nanoseconds> - Express it in nanoseconds
             in_ns.count() - Give it in plain number
         */
-
-        trader.timestamp = duration_cast<nanoseconds>(steady_clock::now().time_since_epoch()).count();
 
         std::lock_guard<std::mutex> lock(variable.market_mutex);
 
@@ -200,15 +193,6 @@ void noise_trader::execute_agent()
         trader.shares = share(variable.rng);
     }
 
-    /*
-        steady_clock::now() - What time is it?
-        moment.time_since_epoch() - How long since the clock's starting point?
-        duration_cast<nanoseconds> - Express it in nanoseconds
-        in_ns.count() - Give it in plain number
-    */
-
-    trader.timestamp = duration_cast<nanoseconds>(steady_clock::now().time_since_epoch()).count();
-
     std::lock_guard<std::mutex> lock(variable.market_mutex);
 
     variable.TradingQueue.push(trader);
@@ -277,14 +261,6 @@ void trend_follower::execute_agent()
         trader.shares = share(variable.rng);
     }
 
-    /*
-        steady_clock::now() - What time is it?
-        moment.time_since_epoch() - How long since the clock's starting point?
-        duration_cast<nanoseconds> - Express it in nanoseconds
-        in_ns.count() - Give it in plain number
-    */
-    trader.timestamp = duration_cast<nanoseconds>(steady_clock::now().time_since_epoch()).count();
-
     std::lock_guard<std::mutex> lock(variable.market_mutex);
 
     variable.TradingQueue.push(trader);
@@ -351,15 +327,6 @@ void whale::execute_agent()
 
         trader.shares = share(variable.rng);
     }
-
-    /*
-        steady_clock::now() - What time is it?
-        moment.time_since_epoch() - How long since the clock's starting point?
-        duration_cast<nanoseconds> - Express it in nanoseconds
-        in_ns.count() - Give it in plain number
-    */
-
-    trader.timestamp = duration_cast<nanoseconds>(steady_clock::now().time_since_epoch()).count();
 
     std::lock_guard<std::mutex> lock(variable.market_mutex);
 

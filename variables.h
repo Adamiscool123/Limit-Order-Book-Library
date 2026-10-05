@@ -36,8 +36,6 @@ struct Order
     int shares;
     OrderType order_type;
     int order_id;
-    long long timestamp;
-    bool traded = false;
 };
 
 /*
