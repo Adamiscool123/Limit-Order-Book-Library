@@ -284,6 +284,8 @@ void whale::execute_agent()
 
     int buy_or_sell = dist(variable.rng);
 
+    int limit_or_buy = dist(variable.rng);
+
     if (buy_or_sell == 0)
     {
         trader.side = Side::Buy;
@@ -293,42 +295,61 @@ void whale::execute_agent()
         trader.side = Side::Sell;
     }
 
-    if (trader.side == Side::Buy)
+    if (limit_or_buy == 0)
     {
-
-        if (variable.price_history.empty())
-        {
-            std::uniform_int_distribution<int> price_dist(variable.starting_price - 5, variable.starting_price + 1);
-            trader.price = price_dist(variable.rng);
-        }
-        else
-        {
-            std::uniform_int_distribution<int> size(variable.price_history.back() - 10, variable.price_history.back());
-
-            trader.price = size(variable.rng);
-        }
-
-        std::uniform_int_distribution<int> share(100, 200);
-
-        trader.shares = share(variable.rng);
+        trader.order_type = OrderType::Limit;
     }
     else
     {
+        trader.order_type = OrderType::Market;
+    }
 
-        if (variable.price_history.empty())
+    if (trader.order_type == OrderType::Limit)
+    {
+        if (trader.side == Side::Buy)
         {
-            std::uniform_int_distribution<int> price_dist(variable.starting_price - 1, variable.starting_price + 5);
-            trader.price = price_dist(variable.rng);
+
+            if (variable.price_history.empty())
+            {
+                std::uniform_int_distribution<int> price_dist(variable.starting_price - 5, variable.starting_price + 1);
+                trader.price = price_dist(variable.rng);
+            }
+            else
+            {
+                std::uniform_int_distribution<int> size(variable.price_history.back() - 10, variable.price_history.back());
+
+                trader.price = size(variable.rng);
+            }
+
+            std::uniform_int_distribution<int> share(100, 200);
+
+            trader.shares = share(variable.rng);
         }
         else
         {
-            std::uniform_int_distribution<int> size(variable.price_history.back(), variable.price_history.back() + 10);
 
-            trader.price = size(variable.rng);
+            if (variable.price_history.empty())
+            {
+                std::uniform_int_distribution<int> price_dist(variable.starting_price - 1, variable.starting_price + 5);
+                trader.price = price_dist(variable.rng);
+            }
+            else
+            {
+                std::uniform_int_distribution<int> size(variable.price_history.back(), variable.price_history.back() + 10);
+
+                trader.price = size(variable.rng);
+            }
+
+            std::uniform_int_distribution<int> share(100, 200);
+
+            trader.shares = share(variable.rng);
         }
-
+    }
+    else
+    {   
+        // Just grabs either the cheapest available sells or the highest available buys.
+        trader.price = 0;
         std::uniform_int_distribution<int> share(100, 200);
-
         trader.shares = share(variable.rng);
     }
 
