@@ -48,8 +48,6 @@ $100 - 6 shares
 For prices with 100:
 
 [5, 6]
-
-
 */
 
 struct PriceLevel

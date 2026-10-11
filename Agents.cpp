@@ -217,9 +217,13 @@ void trend_follower::execute_agent()
     {
         trader.side = Side::Buy;
     }
-    else
+    else if (variable.price_history.back() < variable.price_history.at(variable.price_history.size() - 5))
     {
         trader.side = Side::Sell;
+    }
+    else
+    {
+        return;
     }
 
     if (trader.side == Side::Buy)
@@ -241,7 +245,7 @@ void trend_follower::execute_agent()
 
         trader.shares = share(variable.rng);
     }
-    else
+    else if (trader.side == Side::Sell)
     {
 
         if (variable.price_history.empty())
