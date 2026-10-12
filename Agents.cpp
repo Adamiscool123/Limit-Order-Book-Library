@@ -235,7 +235,7 @@ void trend_follower::execute_agent()
             trader.price = size(variable.rng);
         }
 
-        std::uniform_int_distribution<int> share(100, 200);
+        std::uniform_int_distribution<int> share(10, 30);
 
         trader.shares = share(variable.rng);
     }
@@ -248,7 +248,7 @@ void trend_follower::execute_agent()
             trader.price = size(variable.rng);
         }
 
-        std::uniform_int_distribution<int> share(100, 200);
+        std::uniform_int_distribution<int> share(10, 30);
 
         trader.shares = share(variable.rng);
     }
