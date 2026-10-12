@@ -164,7 +164,7 @@ void noise_trader::execute_agent()
         }
         else
         {
-            std::uniform_int_distribution<int> size(variable.price_history.back() - (0.2 * variable.price_history.back()), variable.price_history.back());
+            std::uniform_int_distribution<int> size(variable.price_history.back() - (0.2 * variable.price_history.back()), variable.price_history.back() + 2);
 
             trader.price = size(variable.rng);
         }
@@ -183,7 +183,7 @@ void noise_trader::execute_agent()
         }
         else
         {
-            std::uniform_int_distribution<int> size(variable.price_history.back(), (variable.price_history.back() + (0.2 * variable.price_history.back())));
+            std::uniform_int_distribution<int> size(variable.price_history.back() - 2, (variable.price_history.back() + (0.2 * variable.price_history.back())));
 
             trader.price = size(variable.rng);
         }
