@@ -229,12 +229,6 @@ void trend_follower::execute_agent()
     if (trader.side == Side::Buy)
     {
 
-        if (variable.price_history.empty())
-        {
-            std::uniform_int_distribution<int> price_dist(variable.starting_price - 5, variable.starting_price + 1);
-            trader.price = price_dist(variable.rng);
-        }
-        else
         {
             std::uniform_int_distribution<int> size(variable.price_history.back() - 2, variable.price_history.back());
 
@@ -248,12 +242,6 @@ void trend_follower::execute_agent()
     else if (trader.side == Side::Sell)
     {
 
-        if (variable.price_history.empty())
-        {
-            std::uniform_int_distribution<int> price_dist(variable.starting_price - 1, variable.starting_price + 5);
-            trader.price = price_dist(variable.rng);
-        }
-        else
         {
             std::uniform_int_distribution<int> size(variable.price_history.back(), variable.price_history.back() + 2);
 
@@ -346,7 +334,7 @@ void whale::execute_agent()
         }
     }
     else
-    {   
+    {
         // Just grabs either the cheapest available sells or the highest available buys.
         trader.price = 0;
         std::uniform_int_distribution<int> share(100, 200);
