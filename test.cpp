@@ -194,6 +194,109 @@ void market_sell_remainder(Global_Variables &v)
     std::cout << "Market sell remainder test passed." << std::endl;
 }
 
+// Checks that cancelling a resting order removes it and its price level from the book.
+void cancel_resting_order(Global_Variables &v)
+{
+    manual trader(v);
+
+    trader.trade(99, 5, Side::Buy, OrderType::Limit, v); // Resting buy, order_id 0
+
+    assert(trader.cancel(0) == true);
+
+    assert(v.buyMap.empty());
+    assert(v.sellMap.empty());
+    assert(v.price_history.empty());
+
+    std::cout << "Cancel resting order test passed." << std::endl;
+}
+
+// Checks that orders which already filled, or never existed, can't be cancelled.
+void cancel_filled_or_unknown_order(Global_Variables &v)
+{
+    manual trader(v);
+
+    trader.trade(100, 5, Side::Sell, OrderType::Limit, v); // Resting sell, order_id 0
+    trader.trade(100, 5, Side::Buy, OrderType::Limit, v);  // Fills it completely, order_id 1
+
+    assert(trader.cancel(0) == false);  // Resting order that already filled
+    assert(trader.cancel(1) == false);  // Incoming order that filled immediately
+    assert(trader.cancel(42) == false); // Never existed
+
+    assert(v.buyMap.empty());
+    assert(v.sellMap.empty());
+
+    std::cout << "Cancel filled or unknown order test passed." << std::endl;
+}
+
+// Checks that the rest of a partially filled order can be cancelled.
+void cancel_partially_filled_order(Global_Variables &v)
+{
+    manual trader(v);
+
+    trader.trade(100, 10, Side::Buy, OrderType::Limit, v); // Resting buy, order_id 0
+    trader.trade(100, 4, Side::Sell, OrderType::Limit, v); // Fills 4 of its 10 shares
+
+    assert(v.buyMap.at(100).total_shares == 6);
+
+    assert(trader.cancel(0) == true);
+
+    assert(v.buyMap.empty());
+    assert(v.price_history.size() == 1);
+
+    std::cout << "Cancel partially filled order test passed." << std::endl;
+}
+
+// Checks that cancelling the middle order at a price keeps FIFO priority for the others.
+void cancel_middle_order_keeps_FIFO(Global_Variables &v)
+{
+    manual trader(v);
+
+    trader.trade(100, 2, Side::Sell, OrderType::Limit, v); // order_id 0
+    trader.trade(100, 3, Side::Sell, OrderType::Limit, v); // order_id 1
+    trader.trade(100, 4, Side::Sell, OrderType::Limit, v); // order_id 2
+
+    assert(trader.cancel(1) == true);
+
+    assert(v.sellMap.at(100).total_shares == 6);
+    assert(v.sellMap.at(100).orders.size() == 2);
+
+    trader.trade(100, 5, Side::Buy, OrderType::Limit, v); // Takes 2 from order 0, then 3 from order 2
+
+    assert(v.buyMap.empty());
+
+    assert(v.sellMap.at(100).total_shares == 1);
+    assert(v.sellMap.at(100).orders.size() == 1);
+    assert(v.sellMap.at(100).orders.front().order_id == 2);
+    assert(v.sellMap.at(100).orders.front().shares == 1);
+
+    assert(v.price_history.size() == 2);
+
+    std::cout << "Cancel middle order keeps FIFO test passed." << std::endl;
+}
+
+// Checks that cancelling the only order at the best price makes the next price the best price.
+void cancel_best_price_level(Global_Variables &v)
+{
+    manual trader(v);
+
+    trader.trade(99, 3, Side::Buy, OrderType::Limit, v); // Best bid, order_id 0
+    trader.trade(98, 2, Side::Buy, OrderType::Limit, v); // Next bid, order_id 1
+
+    assert(trader.cancel(0) == true);
+
+    assert(v.buyMap.count(99) == 0);
+    assert(v.buyMap.begin()->first == 98);
+
+    trader.trade(95, 2, Side::Sell, OrderType::Limit, v); // Must trade at $98, not the cancelled $99
+
+    assert(v.buyMap.empty());
+    assert(v.sellMap.empty());
+    assert(v.price_history.size() == 1);
+    assert(v.price_history.back() == 98);
+
+    std::cout << "Cancel best price level test passed." << std::endl;
+}
+
 int main(void)
 {
 
@@ -240,6 +343,31 @@ int main(void)
     {
         Global_Variables v;
         market_sell_remainder(v);
+    }
+
+    {
+        Global_Variables v;
+        cancel_resting_order(v);
+    }
+
+    {
+        Global_Variables v;
+        cancel_filled_or_unknown_order(v);
+    }
+
+    {
+        Global_Variables v;
+        cancel_partially_filled_order(v);
+    }
+
+    {
+        Global_Variables v;
+        cancel_middle_order_keeps_FIFO(v);
+    }
+
+    {
+        Global_Variables v;
+        cancel_best_price_level(v);
     }
 
     return 0;

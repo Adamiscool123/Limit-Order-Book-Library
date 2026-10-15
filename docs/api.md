@@ -45,9 +45,26 @@ See [architecture.md](architecture.md#market-state) for the meaning of each
 
 | Class | Notes |
 |---|---|
-| `Agent_Base` | Abstract. Provides `execute()`, `loop(int n)`, `infinite_loop(int ms)`; subclasses override `execute_agent()` |
+| `Agent_Base` | Abstract. Provides `execute()`, `loop(int n)`, `infinite_loop(int ms)`, and `bool cancel(int order_id)`; subclasses override `execute_agent()` |
 | `manual` | `trade(int price, int shares, Side side, OrderType type, Global_Variables &m)` queues one order and matches it immediately |
 | `market_maker`, `noise_trader`, `trend_follower`, `whale` | Automated agents, see [agents.md](agents.md) |
+
+### Cancelling orders
+
+`Agent_Base::cancel(order_id)` removes a resting order (or the unfilled rest of a
+partially filled one) from the book, subtracts its shares from the price level, and
+erases the level if it is now empty. It returns `true` if the order was found and
+`false` if it already filled completely or never existed. Any agent can cancel any
+order; there is no ownership check.
+
+Order IDs come from `Global_Variables::count`, starting at 0 for a new market and
+increasing with each order created.
+
+```python
+me.trade(99, 5, ob.Side.Buy, ob.OrderType.Limit, market)  # order_id 0
+me.cancel(0)   # True
+me.cancel(0)   # False: already gone
+```
 
 ### Example
 
@@ -93,7 +110,7 @@ import orderbook_wrapper as ob
 | `GlobalVariables` | `Global_Variables` | `starting_price`, `price_history`, `count`, `buyMap`, `sellMap` |
 | `Matching_Engine` | `Matching_Engine` | `checker(market)`, `buy(...)`, `sell(...)` |
 | `Order_Book` | `Order_Book` | `printer(market)`, `sell(market)`, `buy(market)` |
-| `AgentBase` | `Agent_Base` | `execute()`, `loop(n)`, `infinite_loop(ms)` |
+| `AgentBase` | `Agent_Base` | `execute()`, `loop(n)`, `infinite_loop(ms)`, `cancel(order_id)` |
 | `Manual` | `manual` | `trade(price, shares, side, order_type, market)`, `execute_agent()` |
 | `MarketMaker`, `NoiseTrader`, `TrendFollower`, `Whale` | agents | `execute_agent()` plus the `AgentBase` methods |
 

@@ -267,7 +267,8 @@ These are things to be aware of before extending the code:
    benchmarks for headline numbers (see `docs/benchmarking.md`).
 7. **`PriceLevel::total_shares`** is maintained by the engine but the printer recomputes
    totals by iterating orders — the two could drift; the printer's sum is the truth.
-8. **No cancel/modify order support** — orders can only rest or fill.
+8. **Cancel is a linear search.** `Agent_Base::cancel(id)` scans every resting order;
+   an `order_id` → list-iterator index would make it O(1). No modify-order support.
 9. **Python STL properties are copied by automatic conversion.** In-place mutations such
     as `m.price_history.append(...)` do not update the underlying C++ container.
 
@@ -276,7 +277,7 @@ These are things to be aware of before extending the code:
 ## 12. Ideas that were on the table for "next steps"
 
 - Expand tests to cover invalid inputs and deterministic agent behavior
-- Order cancellation + order lookup by `order_id`
+- O(1) cancellation via an `order_id` → list-iterator index
 - Execution reports (fills and discarded market-order remainders)
 - Multi-threaded simulation using `infinite_loop()` with one thread per agent
 - A Python script that runs a full simulation and plots `price_history` (matplotlib)

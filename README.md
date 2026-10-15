@@ -14,6 +14,7 @@ order flow so the book and its price can be observed evolving over time.
 
 - **Price-time priority matching**: best price first, then first-in-first-out within a price level
 - **Limit and market orders**, including partial fills that sweep several price levels
+- **Order cancellation** by order ID, including partially filled orders
 - **Agent-based market simulation** with five agent types that react to the last traded price
 - **Python API** (`orderbook_wrapper`) for driving the book and simulation from Python
 - **Deterministic correctness tests** run through CTest
@@ -140,10 +141,10 @@ See [docs/api.md](docs/api.md) for the full C++ and Python reference.
 
 ## Testing
 
-[test.cpp](test.cpp) contains nine deterministic scenarios, each on a fresh book:
+[test.cpp](test.cpp) contains fourteen deterministic scenarios, each on a fresh book:
 empty-book insertion, non-crossing and crossing limits, partial fills in both directions,
-sweeping multiple price levels, FIFO priority at one price, and market orders whose size
-exceeds the available liquidity on either side. Assertions stay enabled even in Release
+sweeping multiple price levels, FIFO priority at one price, market orders whose size
+exceeds the available liquidity on either side, and five cancellation cases. Assertions stay enabled even in Release
 builds. Details are in [docs/testing.md](docs/testing.md).
 
 ## Performance
@@ -185,13 +186,15 @@ caveats are in [docs/benchmarking.md](docs/benchmarking.md).
 | Read best bid / ask | O(1) |
 | Rest a limit order | O(log L) |
 | Process an incoming order | O(k + log L) |
+| Cancel an order | O(N), N = resting orders (linear search by ID) |
 
 ## Limitations and roadmap
 
 This is a learning project, and some features of a production exchange are deliberately
 not implemented yet:
 
-- **No cancel or modify.** Supporting it needs an `order_id` → list-iterator index.
+- **Cancel searches the whole book.** It is O(N) in resting orders. An `order_id` →
+  list-iterator index would make it O(1). There is no modify-order operation yet.
 - **No execution reports.** Fills are visible only through `price_history`, and an unfilled
   market-order remainder is dropped silently.
 - **Single-threaded in practice.** The queue and book are guarded by `market_mutex`, but agents
@@ -200,7 +203,7 @@ not implemented yet:
   lists/dicts, so mutating them in place from Python does not change the C++ state.
 - **Integer prices** only, with a fixed $1 tick.
 
-Planned next steps: order cancellation, execution reports, per-order latency
+Planned next steps: O(1) cancellation via an order index, execution reports, per-order latency
 percentiles, and a Python notebook that plots simulated price paths.
 
 ## Project structure

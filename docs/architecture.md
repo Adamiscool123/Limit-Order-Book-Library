@@ -111,6 +111,7 @@ With L price levels on a side and k fills produced by an incoming order:
 | Each fill | O(1) amortized (list `pop_front`, map erase by iterator) |
 | Rest a limit remainder | O(log L) map lookup plus O(1) list append |
 | Whole incoming order | O(k + log L) |
+| Cancel by order ID | O(N) linear search over resting orders, then O(1) list erase |
 
 `std::map` and `std::list` allocate one node per level and per order, so memory
 allocation is a meaningful share of the cost. A production engine would typically use

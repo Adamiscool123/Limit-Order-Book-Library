@@ -21,6 +21,8 @@ public:
     void execute();
 
     void loop(int times);
+
+    bool cancel(int order_id);
 };
 
 class manual : public Agent_Base

@@ -33,6 +33,54 @@ void Agent_Base::loop(int times)
     }
 }
 
+// Cancel order
+
+bool Agent_Base::cancel(int id)
+{
+    // Lock mutex
+    std::lock_guard<std::mutex> lock(this->variable.market_mutex);
+
+    // Create Lambda function that can use buyMap or sellMap
+    auto remove_from = [id](auto &book)
+    {
+        // Assign level to the Map begin index and check if level isn't Map index end then increment the index at each loop iteration by 11;
+        for (auto level = book.begin(); level != book.end(); level++)
+        {
+            // Assign a new variable orders that is a reference to the Pricelevel Orders.
+            auto &orders = level->second.orders;
+
+            // Create a find_if to check for the orders at that Pricelevel order_id's that match the id we are looking for.
+            auto it = std::find_if(orders.begin(), orders.end(),
+                                   // pass through id and constant order, an Order object
+                                   [id](const Order &order)
+                                   {
+                                       // Return the order order id that matches ours.
+                                       return order.order_id == id;
+                                   });
+            // Check if it isn't the end of the index making sure we found it.
+            if ((it != orders.end()))
+            {
+                // Check the Price level shares and deduct total shares by the Order with the id that matches the id we are looking for shares.
+                level->second.total_shares -= it->shares;
+                // After erase the Order we found that matches the id we are looking for from the PriceLevel orders
+                orders.erase(it);
+                // Check to see if orders is empty if so
+                if (orders.empty())
+                {
+                    // Remove the PriceLevel since there isn't any orders left.
+                    book.erase(level);
+                }
+                // If everything works then we return true
+                return true;
+            }
+        }
+        // If not we return false
+        return false;
+    };
+    // Quickly run both and if one is true meaning we have found the id then it will return true
+    return remove_from(this->variable.buyMap) || remove_from(this->variable.sellMap);
+}
+
 void manual::execute_agent() {}
 
 void manual::trade(int price, int shares, Side side, OrderType order_type, Global_Variables &m)

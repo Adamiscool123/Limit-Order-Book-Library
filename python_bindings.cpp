@@ -51,7 +51,8 @@ PYBIND11_MODULE(orderbook_wrapper, m)
     py::class_<Agent_Base>(m, "AgentBase")
         .def("infinite_loop", &Agent_Base::infinite_loop)
         .def("execute", &Agent_Base::execute)
-        .def("loop", &Agent_Base::loop);
+        .def("loop", &Agent_Base::loop)
+        .def("cancel", &Agent_Base::cancel);
 
     py::class_<manual, Agent_Base>(m, "Manual")
         .def(py::init<Global_Variables &>(), py::keep_alive<1, 2>())
