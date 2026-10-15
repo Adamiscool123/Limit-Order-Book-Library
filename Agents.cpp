@@ -43,7 +43,7 @@ bool Agent_Base::cancel(int id)
     // Create Lambda function that can use buyMap or sellMap
     auto remove_from = [id](auto &book)
     {
-        // Assign level to the Map begin index and check if level isn't Map index end then increment the index at each loop iteration by 11;
+        // Assign level to the Map begin index and check if level isn't Map index end then increment the index at each loop iteration by 1;
         for (auto level = book.begin(); level != book.end(); level++)
         {
             // Assign a new variable orders that is a reference to the Pricelevel Orders.
