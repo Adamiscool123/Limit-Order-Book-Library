@@ -228,5 +228,4 @@ percentiles, and a Python notebook that plots simulated price paths.
 
 I built this project to learn market microstructure (how bids, asks, spreads, and price
 discovery work), how an exchange matching engine enforces fairness between orders,
-C++ data-structure and concurrency trade-offs, and how to measure performance without
-fooling yourself.
+C++ data-structure and concurrency trade-offs, and how to measure performance.
