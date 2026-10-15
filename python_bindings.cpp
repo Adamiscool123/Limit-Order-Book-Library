@@ -17,8 +17,7 @@ PYBIND11_MODULE(orderbook_wrapper, m)
         .def_readwrite("price", &Order::price)
         .def_readwrite("shares", &Order::shares)
         .def_readwrite("order_type", &Order::order_type)
-        .def_readwrite("order_id", &Order::order_id)
-        .def_readwrite("traded", &Order::traded);
+        .def_readwrite("order_id", &Order::order_id);
 
     py::enum_<Side>(m, "Side")
         .value("Buy", Side::Buy)

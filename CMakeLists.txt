@@ -3,6 +3,12 @@ project(LimitOrderBook CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Default to an optimized build so benchmarks aren't accidentally run unoptimized.
+# Passing -DCMAKE_BUILD_TYPE=Debug still works.
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
+endif()
+
 # 1. Your existing library
 # Keep this as is, but we'll link to it later
 add_library(Limit_Order_Book STATIC

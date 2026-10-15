@@ -4,7 +4,9 @@
 > It explains what the project is, how every file fits together, how the code actually works,
 > how to build and use it, and what the known quirks / unfinished parts are.
 >
-> Last updated: 2026-10-05
+> Last updated: 2026-10-14
+>
+> Public-facing documentation lives in `README.md` and `docs/`.
 
 ---
 
@@ -38,6 +40,7 @@ There is **no `main.cpp`** — the project builds as a **library** (`Limit_Order
 | `test.cpp` | Deterministic matching-engine correctness tests |
 | `CMakeLists.txt` | Builds the library, Python module, benchmark, and tests; downloads pinned dependencies |
 | `README.md` | Public-facing description + benchmark results table |
+| `docs/` | Architecture, agents, API reference, testing, and benchmarking guides |
 | `build/` | CMake build output (generated; contains the compiled `.pyd`) |
 
 ---
@@ -54,8 +57,6 @@ struct Order {
     int shares;             // remaining quantity
     OrderType order_type;   // OrderType::Limit or OrderType::Market
     int order_id;     // taken from Global_Variables::count, then count++
-    long long timestamp;
-    bool traded = false;   // currently never set anywhere
 };
 
 struct PriceLevel {
@@ -115,12 +116,12 @@ Each subclass overrides `execute_agent()`:
 |---|---|
 | **manual** | `execute_agent()` does nothing. Instead call `trade(price, shares, side, order_type, m)` directly to place a specific order (this is you trading by hand). |
 | **market_maker** | Places a **pair** of orders every run: a buy at `last_price - 1` and a sell at `last_price + 1` (i.e. quotes around the last trade), 1–10 shares each. Before any trade exists it quotes randomly around `starting_price` (buys 95–101, sells 99–105). |
-| **noise_trader** | Random side, random price within **±20% of last price** (buys below last, sells above), 1–10 shares. Provides random background flow. |
-| **trend_follower** | Needs ≥5 prices in history, otherwise does nothing. Compares last price vs 5 trades ago: price up → **buys** near last price (last−2..last), price down → **sells** (last..last+2). Big size: 100–200 shares. Momentum trader. |
-| **whale** | Random side, price within ±10 dollars of last, **100–200 shares** — a large player that moves the market. |
+| **noise_trader** | Random side, 1–10 shares. Buys in `[0.8 × last, last + 2]`, sells in `[last − 2, 1.2 × last]`, so some orders cross the spread and move the price. Before any trade: buys 95–101, sells 99–105. |
+| **trend_follower** | Needs ≥5 prices in history, otherwise does nothing. Compares last price vs `price_history[size − 5]`: price up → **buys** (last−2..last), price down → **sells** (last..last+2), flat → does nothing. 10–30 shares. Momentum trader. |
+| **whale** | Random side, **100–200 shares**. 50/50 limit or market: limit buys in last−10..last, limit sells in last..last+10; market orders take the best opposite prices and discard any unfilled remainder. |
 
-All agent orders are limit orders (`OrderType::Limit`). All of them lock the mutex before
-pushing to the queue.
+The whale's market orders are the only automated market orders; every other agent sends
+limit orders (`OrderType::Limit`). All of them lock the mutex before pushing to the queue.
 
 ---
 
@@ -223,28 +224,28 @@ builds.
 
 ## 10. Benchmarks
 
-`benchmark.cpp` uses Google Benchmark and builds as `benchmark_test.exe`. Each fixed-book
-benchmark rebuilds a seeded market for every measured iteration, excludes setup and cleanup
-from timing, and measures complete agent execution: order generation, queue locking, and
-matching-engine processing.
+`benchmark.cpp` uses Google Benchmark and builds as `benchmark_test.exe`. Six benchmarks:
 
-Benchmark names use two arguments:
+- `Matching_Engine_Test_Fixed_Book` — engine only: a pre-generated, seeded order stream is
+  pushed and matched, so no RNG or agent logic is timed. This is the headline number.
+- `Mixed_Market_Test_Fixed_Book` — market maker, noise trader, trend follower, and whale
+  take turns in one market (4 agent executions per round).
+- One benchmark per agent type on its own (`Noise_Trader_...`, `Whale_...`, etc.).
 
-```text
-Agent_Test_Fixed_Book/<setup submissions>/<timed agent executions>
-```
-
-The first argument counts deterministic noise-trader setup submissions, not guaranteed
-resting orders. The second counts agent executions in the timed batch. One market-maker
-execution submits two orders. Run repeated Release measurements with:
+Every iteration rebuilds a seeded market while the timer is paused. Names are
+`<Benchmark>/<setup>/<timed items>`; the grid is setup {10, 100, 1000, 10000} × batch
+{1000, 10000}. Settings live in `fixed_book_args()` (1 iteration per repetition,
+20 repetitions, wall-clock time, microseconds), so just run:
 
 ```powershell
-.\build\benchmark_test.exe --benchmark_min_time=1x --benchmark_repetitions=5 --benchmark_report_aggregates_only=true
+.\build\benchmark_test.exe
+.\build\benchmark_test.exe --benchmark_filter=Book/1000/10000   # headline cases only
 ```
 
-The `1x` setting prevents Google Benchmark from automatically repeating each full
-batch and its paused setup work many times. The batch sizes already provide the
-repetition needed for the large cases.
+Each result reports `fills` and `resting` counters so you can see what a batch actually
+did. On their own, the market maker never trades and the trend follower (setup ≤ 1000)
+submits nothing; that's expected, and the mixed benchmark covers them. CMake now
+defaults to Release when no build type is given. Results and caveats: `docs/benchmarking.md`.
 
 ---
 
@@ -254,16 +255,16 @@ These are things to be aware of before extending the code:
 
 1. **Market-order reporting is minimal.** Market orders consume available opposite-side
    liquidity and discard any unfilled remainder, but there is no fill/cancellation report.
-2. **`Order::timestamp` is meaningless.** Every agent does `start = now(); end = now();`
-   back-to-back, so timestamp is ~0. FIFO ordering works anyway (it comes from list order,
-   not the timestamp), but the field is effectively dead.
-3. **`Order::traded` is never set** anywhere.
-4. **`Matching_Engine::break_loop` member is unused** — a local `break_loop` in `checker()`
-   is what's actually used and passed by reference.
+2. **There are no timestamps.** FIFO priority comes from list insertion order, so
+   `Order::timestamp` and `Order::traded` were removed.
+3. **Order IDs can have gaps.** `trend_follower` takes an ID from `count` before deciding
+   whether to submit anything.
+4. **`infinite_loop()` never returns**, and from Python it blocks the interpreter.
 5. **Concurrent agent execution is not fully synchronized.** Queue and matching operations
    use `market_mutex`, but agents access `count`, `rng`, and `price_history` outside the lock.
-6. **Dead code in `trend_follower`:** the `price_history.empty()` branches can never run
-   because the function returns early when history has < 5 entries.
+6. **Single-agent benchmarks can be degenerate.** On its own the market maker never trades and
+   the trend follower (setup ≤ 1000) submits nothing — use the engine and mixed-market
+   benchmarks for headline numbers (see `docs/benchmarking.md`).
 7. **`PriceLevel::total_shares`** is maintained by the engine but the printer recomputes
    totals by iterating orders — the two could drift; the printer's sum is the truth.
 8. **No cancel/modify order support** — orders can only rest or fill.
@@ -276,7 +277,7 @@ These are things to be aware of before extending the code:
 
 - Expand tests to cover invalid inputs and deterministic agent behavior
 - Order cancellation + order lookup by `order_id`
-- Set `traded` flag and give trades real timestamps
+- Execution reports (fills and discarded market-order remainders)
 - Multi-threaded simulation using `infinite_loop()` with one thread per agent
 - A Python script that runs a full simulation and plots `price_history` (matplotlib)
 
